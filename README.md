@@ -10,13 +10,13 @@ The pipeline can be divided into four major modules:
   3. **Score2TSV**: Convert the score per allele to score per SNV (reference + alternative allele).
   4. **TSV2BED**: Determine if a position is positive or negative by user-specified rules and generate the corresponding BED file.
 
-## BED2SNV
+## BED2Input
 
 Split part is shared across different downstream calculation but user can specify the input format.
 
-## SNV2Score
+## Input2Score
 
-For each annotation method, it will work in an independent directory and even work collaboratively with other pipeline. The naming convention is `annotate-[name]`
+For each annotation method, it will work in an independent directory and even work collaboratively with other pipeline. The naming convention is `input2score-[name]`
 
 ## Score2TSV
 
