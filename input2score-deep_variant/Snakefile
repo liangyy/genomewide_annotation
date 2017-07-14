@@ -2,6 +2,18 @@
 # https://github.com/CreRecombinase/DeepVariantPrediction/tree/issue1
 # It generate the configfile that is ready to be used in the above pipeline
 
+def get_all_outputs(config):
+    out = []
+    for f in config['deep_variant']['label']['entry'].keys():
+        out.append('scores/{model}/{bed}/merged.{feature}.score.gz'.format(feature=f,
+        model=config['deep_variant']['model']['name'],
+        bed=config['name']))
+    return out
+
+rule all:
+    input:
+        get_all_outputs(config['deep_variant'])
+
 def label_string(label):
     white = '  '
     string = white + label['group_name']
@@ -13,11 +25,11 @@ rule gen_config:
     input:
         '../bed2input/chunks/{{bed}}/chunk_{i}.input.gz'
     params:
-        label_string = label_string(config['label'])
+        label_string = label_string(config['deep_variant']['label'])
     output:
         'configs/{{bed}}/config.chunk_{i}.yaml'
     run:
-        config = '''data:
+        config_str = '''data:
   {taskname}-chunk-{i}:
     name: '{input_name}'
     method: '_formatting_genomewide_annotation.snakemake'
@@ -34,17 +46,25 @@ performance:
   mode1:
     method: '_histogram.snakemake'
     params: 'some other input here'
-'''.format(taskname=wildcards.bed, i=wildcards.i, label_string=params.label_string, model_name=config['model']['name'], model_path=config['model']['path'])
+'''.format(taskname=wildcards.bed, i=wildcards.i, label_string=params.label_string, model_name=wildcards.model, model_path=config['deep_variant'][wildcards.model]['path'])
         o = open(output[0], 'w')
-        o.write(config)
+        o.write(config_str)
         o.close()
 
 rule output2score:
     input:
-        '{path}/score/{model}/{{bed}}.{group_name}.feather'.format(path=config['path_to_annotation'], model=config['model']['name'], group_name=config['label']['group_name'])
+        '{path}/score/{{model}}/{{bed}}-chunk-{{i}}.{group_name}.feather'.format(path=config['deep_variant']['path_to_annotation'], group_name=config['deep_variant']['label']['group_name'])
     output:
-        [ 'scores/{{bed}}__{feature}.score.gz'.format(feature=feature) for feature in config['label']['entry'].keys() ]
+        [ 'scores/{{model}}/{{bed}}/chunk_{{i}}.{feature}.score.gz'.format(feature=feature) for feature in config['deep_variant']['label']['entry'].keys() ]
     params:
-        labels = [ feature for feature in config['label']['entry'].keys() ]
+        labels = [ feature for feature in config['deep_variant']['label']['entry'].keys() ]
     shell:
         'python scripts/output2score.py --input {input[0]} --out_prefix {wildcards.bed} --labels {params.labels}'
+
+rule merge:
+    input:
+        files = lambda wildcards: [ 'scores/{{model}}/{{bed}}/chunk_{{i}}.{{feature}}.score.gz'.format(i=i) for i in range(config[wildcards.bed]['number_of_chunk']) ]
+    output:
+        'scores/{{model}}/{{bed}}/merged.{{feature}}.score.gz'
+    shell:
+        'python scripts/merge.py --inputs {input.files} --output {output[0]}'

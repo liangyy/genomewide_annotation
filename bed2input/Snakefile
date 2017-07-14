@@ -24,12 +24,24 @@ rule split:
     shell:
         'python scripts/split.py --input {input[0]} --nchunk {params.nchunk} --outdir {params.outdir}'
 
-rule prepare_input:
+rule prepare_input_getseq:
     input:
         'chunks/{bed}/chunk_{i}.raw'
     params:
+        genome = config['genome_assembly']['fasta']
+    output:
+        temp('chunks/{{bed}}/chunk_{i}.tab.gz')
+    shell:
+        'bedtools getfasta -fi {params.genome} -bed {input[0]} -name -tab | gzip > {output[0]}'
+
+rule prepare_input_geninput:
+    input:
+        seq = 'chunks/{bed}/chunk_{i}.tab.gz'
+    params:
         script = lambda wildcards: config[wildcards.bed]['prepare_input_script']
+    log:
+        'log/{bed}_chunk_{i}.log'
     output:
         'chunks/{{bed}}/chunk_{i}.input.gz'
     shell:
-        'python scripts/{params.script} --input {input[0]} --output {output[0]}'
+        'python scripts/{params.script} --input_seq {input.seq} --log {log} | gzip > {output[0]}'

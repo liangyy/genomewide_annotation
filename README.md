@@ -16,7 +16,9 @@ Split part is shared across different downstream calculation but user can specif
 
 ## Input2Score
 
-For each annotation method, it will work in an independent directory and even work collaboratively with other pipeline. The naming convention is `input2score-[name]`
+For each annotation method, it will work in an independent directory and even work collaboratively with other pipeline. The naming convention is `input2score-[name]`.
+
+**Caution**: The standard format of score indicates reference allele information by setting the first allele as reference allele.
 
 ## Score2TSV
 
