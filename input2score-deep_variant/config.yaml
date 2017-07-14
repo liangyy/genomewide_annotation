@@ -1,0 +1,10 @@
+model:
+  name: 'model name'
+  path: 'model path'
+label:
+  group_name: 'label'
+  entry:
+    E081: 1
+    E129: 3
+    Noonan: 4
+path_to_annotation: 'some path'

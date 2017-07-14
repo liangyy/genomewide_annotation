@@ -6,7 +6,7 @@
 def all_chunks(name):
     out = []
     for i in range(config[name]['number_of_chunk']):
-        out.append('chunks/{bed}/chunk_{i}.input'.format(i=i, bed=name))
+        out.append('chunks/{bed}/chunk_{i}.input.gz'.format(i=i, bed=name))
     return out
 
 rule all:
@@ -30,6 +30,6 @@ rule prepare_input:
     params:
         script = lambda wildcards: config[wildcards.bed]['prepare_input_script']
     output:
-        'chunks/{{bed}}/chunk_{i}.input'
+        'chunks/{{bed}}/chunk_{i}.input.gz'
     shell:
         'python scripts/{params.script} --input {input[0]} --output {output[0]}'

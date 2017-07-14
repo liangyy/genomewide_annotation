@@ -2,6 +2,49 @@
 # https://github.com/CreRecombinase/DeepVariantPrediction/tree/issue1
 # It generate the configfile that is ready to be used in the above pipeline
 
+def label_string(label):
+    white = '  '
+    string = white + label['group_name']
+    for i in label['entry'].keys():
+        string = string + '\n{white}{white}{name}: {idx}'.format(white=white, name=i, idx=label['entry'][i])
+    return string
+
 rule gen_config:
     input:
-        ''
+        '../bed2input/chunks/{{bed}}/chunk_{i}.input.gz'
+    params:
+        label_string = label_string(config['label'])
+    output:
+        'configs/{{bed}}/config.chunk_{i}.yaml'
+    run:
+        config = '''data:
+  {taskname}-chunk-{i}:
+    name: '{input_name}'
+    method: '_formatting_genomewide_annotation.snakemake'
+window_size: 1000 # Attention: this should match the window size of the model below
+model:
+  name: '{model_name}'
+  snakemake: 'modules/submodules/input2score/_train_model_do_nothing.snakemake'
+  workdir: '{model_path}'
+{label_string}
+genome_assembly:
+  fasta: '/project2/xinhe/yanyul/databases/hg19/hg19.fa'
+  size: '/project2/xinhe/yanyul/databases/hg19/hg19.chrom.sizes'
+performance:
+  mode1:
+    method: '_histogram.snakemake'
+    params: 'some other input here'
+'''.format(taskname=wildcards.bed, i=wildcards.i, label_string=params.label_string, model_name=config['model']['name'], model_path=config['model']['path'])
+        o = open(output[0], 'w')
+        o.write(config)
+        o.close()
+
+rule output2score:
+    input:
+        '{path}/score/{model}/{{bed}}.{group_name}.feather'.format(path=config['path_to_annotation'], model=config['model']['name'], group_name=config['label']['group_name'])
+    output:
+        [ 'scores/{{bed}}__{feature}.score.gz'.format(feature=feature) for feature in config['label']['entry'].keys() ]
+    params:
+        labels = [ feature for feature in config['label']['entry'].keys() ]
+    shell:
+        'python scripts/output2score.py --input {input[0]} --out_prefix {wildcards.bed} --labels {params.labels}'
