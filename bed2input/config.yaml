@@ -1,0 +1,4 @@
+promoter_upstream_1kb:
+  path: 'some_path'
+  number_of_chunk: 10
+  prepare_input_script: 'script name in scripts/'

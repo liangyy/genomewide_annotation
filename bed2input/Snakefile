@@ -1,0 +1,25 @@
+# This module takes bed file as input and split it into chunks according to the
+# parameter number_of_chunk in configfile.
+# Besides, it takes the split regions and prepare the input files for
+# downstream analysis
+
+rule split:
+    input:
+        lambda wildcards: config[wildcards.bed]['path']
+    params:
+        nchunk = lambda wildcards: config[wildcards.bed]['number_of_chunk'],
+        outdir = lambda wildcards: 'chunks/{wildcards.bed}/'
+    output:
+        lambda wildcards: [ 'chunks/{{bed}}/chunk_{i}'.format(i=i) for i in range(config[wildcards.bed]['number_of_chunk']) ]
+    shell:
+        'python scripts/split.py --input {input[0]} --nchunk {params.nchunk} --outdir {params.outdir}'
+
+rule prepare_input:
+    input:
+        'chunks/{bed}/chunk_{i}.raw'
+    params:
+        script = lambda wildcards: config[wildcards.bed]['prepare_input_script']
+    output:
+        'chunks/{{bed}}/chunk_{i}.input'
+    shell:
+        'python scripts/{params.script} --input {input[0]} --output {output[0]}'
