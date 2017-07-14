@@ -18,9 +18,9 @@ rule split:
         lambda wildcards: config[wildcards.bed]['path']
     params:
         nchunk = lambda wildcards: config[wildcards.bed]['number_of_chunk'],
-        outdir = lambda wildcards: 'chunks/{wildcards.bed}/'
+        outdir = lambda wildcards: 'chunks/{bed}/'
     output:
-        lambda wildcards: [ 'chunks/{{bed}}/chunk_{i}.raw'.format(i=i) for i in range(config[wildcards.bed]['number_of_chunk']) ]
+        [ 'chunks/{{bed}}/chunk_{i}.raw'.format(i=i) for i in range(config[config['name']]['number_of_chunk']) ]
     shell:
         'python scripts/split.py --input {input[0]} --nchunk {params.nchunk} --outdir {params.outdir}'
 
@@ -30,7 +30,7 @@ rule prepare_input_getseq:
     params:
         genome = config['genome_assembly']['fasta']
     output:
-        temp('chunks/{{bed}}/chunk_{i}.tab.gz')
+        temp('chunks/{bed}/chunk_{i}.tab.gz')
     shell:
         'bedtools getfasta -fi {params.genome} -bed {input[0]} -name -tab | gzip > {output[0]}'
 
@@ -42,6 +42,6 @@ rule prepare_input_geninput:
     log:
         'log/{bed}_chunk_{i}.log'
     output:
-        'chunks/{{bed}}/chunk_{i}.input.gz'
+        'chunks/{bed}/chunk_{i}.input.gz'
     shell:
         'python scripts/{params.script} --input_seq {input.seq} --log {log} | gzip > {output[0]}'
