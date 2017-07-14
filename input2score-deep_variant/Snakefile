@@ -1,0 +1,7 @@
+# This module makes use of DeepVariantPrediction at
+# https://github.com/CreRecombinase/DeepVariantPrediction/tree/issue1
+# It generate the configfile that is ready to be used in the above pipeline
+
+rule gen_config:
+    input:
+        ''

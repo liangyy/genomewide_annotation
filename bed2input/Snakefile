@@ -3,6 +3,16 @@
 # Besides, it takes the split regions and prepare the input files for
 # downstream analysis
 
+def all_chunks(name):
+    out = []
+    for i in range(config[name]['number_of_chunk']):
+        out.append('chunks/{bed}/chunk_{i}.input'.format(i=i, bed=name))
+    return out
+
+rule all:
+    input:
+        all_chunks(config['name'])
+
 rule split:
     input:
         lambda wildcards: config[wildcards.bed]['path']
@@ -10,7 +20,7 @@ rule split:
         nchunk = lambda wildcards: config[wildcards.bed]['number_of_chunk'],
         outdir = lambda wildcards: 'chunks/{wildcards.bed}/'
     output:
-        lambda wildcards: [ 'chunks/{{bed}}/chunk_{i}'.format(i=i) for i in range(config[wildcards.bed]['number_of_chunk']) ]
+        lambda wildcards: [ 'chunks/{{bed}}/chunk_{i}.raw'.format(i=i) for i in range(config[wildcards.bed]['number_of_chunk']) ]
     shell:
         'python scripts/split.py --input {input[0]} --nchunk {params.nchunk} --outdir {params.outdir}'
 
