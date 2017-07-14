@@ -15,4 +15,5 @@ deep_variant:
       Noonan: 4
   path_to_annotation: 'some path'
 genome_assembly:
-  fasta: '/project2/xinhe/yanyul/databases/hg19/hg19.fa'
+  fasta: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.fa'
+  size: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.chrom.sizes'

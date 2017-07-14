@@ -40,13 +40,19 @@ model:
   workdir: '{model_path}'
 {label_string}
 genome_assembly:
-  fasta: '/project2/xinhe/yanyul/databases/hg19/hg19.fa'
-  size: '/project2/xinhe/yanyul/databases/hg19/hg19.chrom.sizes'
+  fasta: '{fasta}'
+  size: '{size}'
 performance:
   mode1:
     method: '_histogram.snakemake'
     params: 'some other input here'
-'''.format(taskname=wildcards.bed, i=wildcards.i, label_string=params.label_string, model_name=wildcards.model, model_path=config['deep_variant'][wildcards.model]['path'])
+'''.format(taskname=wildcards.bed,
+i=wildcards.i,
+label_string=params.label_string,
+model_name=wildcards.model,
+model_path=config['deep_variant'][wildcards.model]['path'],
+fasta=config['genome_assembly']['fasta'],
+size=config['genome_assembly']['size'])
         o = open(output[0], 'w')
         o.write(config_str)
         o.close()
