@@ -21,20 +21,25 @@ o = open(args.log, 'w')
 
 with gzip.open(args.input_seq, 'rb') as f:
     file_content = f.read().decode()
+    c = 0
     for l in file_content.split('\n'):
-        l = l.strip().split(' ')
-        chrm = l[0]
-        start = int(l[1])
-        end = int(l[2])
-        seq = l[3]
+        if len(l) == 0:
+            continue
+        l = l.strip().split('\t')
+        temp = l[0].split(':')
+        chrm = temp[0]
+        temp = temp[1].split('-')
+        start = int(temp[0])
+        end = int(temp[1])
+        seq = l[1]
         for i in range(len(seq)):
             ref = seq[i].upper()
             for char in bases:
-                if char is ref:
+                if char == ref:
                     continue
                 else:
-                    line = '{chrm}\t{start}\t{end}\t{ref}\t{alt}\n'.format(chrm=chrm, start=start + i, end=start + i + 1)
+                    line = '{chrm}\t{start}\t{end}\t{ref}\t{alt}'.format(chrm=chrm, start=start + i, end=start + i + 1, ref=ref, alt=char)
                     print(line)
-            if start + i != end:
-                o.write('Wrong number of SNVs in {line}'.format(line='--'.join(l)))
+        if start + i + 1 != end:
+            o.write('Wrong number of SNVs in {line}\n'.format(line='--'.join([chrm, str(start), str(end)])))
 o.close()

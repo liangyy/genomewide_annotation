@@ -30,9 +30,17 @@ rule prepare_input_getseq:
     params:
         genome = config['genome_assembly']['fasta']
     output:
+        temp('chunks/{bed}/chunk_{i}.tab')
+    shell:
+        'bedtools getfasta -fi {params.genome} -bed {input[0]} -fo {output[0]} -tab'
+
+rule prepare_input_compress:
+    input:
+        'chunks/{bed}/chunk_{i}.tab'
+    output:
         temp('chunks/{bed}/chunk_{i}.tab.gz')
     shell:
-        'bedtools getfasta -fi {params.genome} -bed {input[0]} -name -tab | gzip > {output[0]}'
+        'gzip {input[0]}'
 
 rule prepare_input_geninput:
     input:
