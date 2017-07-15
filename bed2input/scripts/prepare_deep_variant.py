@@ -3,21 +3,23 @@ parser = argparse.ArgumentParser(prog='prepare_deep_variant.py', description='''
     Given the split bed file, output the input ready for DeepVariantPrediction
 ''')
 parser.add_argument('--input_seq')
+parser.add_argument('--exclude')
 parser.add_argument('--log')
 args = parser.parse_args()
 
 bases = ['A', 'C', 'G', 'T']
 
-# order = {
-#     'A': ['A', 'C', 'G', 'T'],
-#     'C': ['C', 'G', 'T', 'A'],
-#     'G': ['G', 'T', 'A', 'C'],
-#     'T': ['T', 'A', 'C', 'G']
-# }
+order = {
+    'A': ['A', 'C', 'G', 'T'],
+    'C': ['C', 'G', 'T', 'A'],
+    'G': ['G', 'T', 'A', 'C'],
+    'T': ['T', 'A', 'C', 'G']
+}
 
 import gzip
 
 o = open(args.log, 'w')
+o_bad = open(args.exclude, 'w')
 
 with gzip.open(args.input_seq, 'rb') as f:
     file_content = f.read().decode()
@@ -34,12 +36,14 @@ with gzip.open(args.input_seq, 'rb') as f:
         seq = l[1]
         for i in range(len(seq)):
             ref = seq[i].upper()
-            for char in bases:
-                if char == ref:
-                    continue
-                else:
-                    line = '{chrm}\t{start}\t{end}\t{ref}\t{alt}'.format(chrm=chrm, start=start + i, end=start + i + 1, ref=ref, alt=char)
-                    print(line)
+            if ref not in base:
+                o_bad.write('{chrm}\t{start}\t{end}\t{ref}'.format(chrm=chrm, start=start + i, end=start + i + 1, ref=ref))
+            (ref1, alt1, ref2, alt2) = order[ref]
+            line1 = '{chrm}\t{start}\t{end}\t{ref}\t{alt}'.format(chrm=chrm, start=start + i, end=start + i + 1, ref=ref1, alt=alt1)
+            print(line1)
+            line2 = '{chrm}\t{start}\t{end}\t{ref}\t{alt}'.format(chrm=chrm, start=start + i, end=start + i + 1, ref=ref2, alt=alt2)
+            print(line2)
         if start + i + 1 != end:
             o.write('Wrong number of SNVs in {line}\n'.format(line='--'.join([chrm, str(start), str(end)])))
 o.close()
+o_bad.close()

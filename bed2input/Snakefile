@@ -50,6 +50,7 @@ rule prepare_input_geninput:
     log:
         'log/{bed}_chunk_{i}.log'
     output:
-        'chunks/{bed}/chunk_{i}.input.gz'
+        good = 'chunks/{bed}/chunk_{i}.input.gz',
+        bad = 'chunks/{bed}/chunk_{i}.bad.input'
     shell:
-        'python scripts/{params.script} --input_seq {input.seq} --log {log} | gzip > {output[0]}'
+        'python scripts/{params.script} --input_seq {input.seq} --log {log} --exclude {output.bad} | gzip > {output.good}'
