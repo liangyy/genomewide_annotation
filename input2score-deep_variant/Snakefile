@@ -10,9 +10,21 @@ def get_all_outputs(config):
         bed=config['name']))
     return out
 
+def step1_sbatchs(config):
+    out = []
+    for i in range(config[config['name']]['number_of_chunk']):
+        out.append('sbatch/{bed}/prepare_input.{model_tag}.chunk_{i}.sbatch'.format(i=i,
+        bed=config['name'],
+        model_tag=config['deep_variant']['model_tag']))
+    return out
+
 rule all:
     input:
         get_all_outputs(config)
+
+rule step1:
+    input:
+        step1_sbatchs(config)
 
 def label_string(label):
     white = '  '
@@ -62,6 +74,42 @@ fasta=config['genome_assembly']['fasta'],
 size=config['genome_assembly']['size'],
 input_name=input_name,
 snakemake_dir=params.snakemake_dir)
+        o = open(output[0], 'w')
+        o.write(config_str)
+        o.close()
+
+rule gen_sbatch:
+    input:
+        '../bed2input/chunks/{bed}/chunk_{i}.input.gz',
+        'configs/{bed}/config.{model_tag}.chunk_{i}.yaml'
+    params:
+        label_string = label_string(config['deep_variant']['label']),
+        snakemake_dir = config['snakemake_dir']
+    output:
+        'sbatch/{bed}/prepare_input.{model_tag}.chunk_{i}.sbatch'
+    run:
+        sbatch = '''#!/bin/bash
+#SBATCH --job-name={i}-{bed}-{model_tag}.var2in
+#SBATCH --output={i}-{bed}-{model_tag}.var2in.out
+#SBATCH --error={i}-{bed}-{model_tag}.var2in.err
+#SBATCH --time=24:00:00
+#SBATCH --partition=broadwl
+#SBATCH --mem-per-cpu=50G
+#SBATCH --nodes=1
+
+cd /project2/xinhe/yanyul
+source setup.sh
+source activate deepvarpred_test
+# module load cuda/7.5 # load cuda dependency for theano to run on GPU. Now we use the default cuda library on RCC (v4.0)
+cd deep_variant/nick/DeepVariantPrediction
+
+snakemake --unlock sbatch/{model_tag}.{bed}.allele1.sbatch sbatch/{model_tag}.{bed}.allele2.sbatch --configfile {snakemake_dir}/{config_yaml}
+snakemake sbatch/{model_tag}.{bed}.allele1.sbatch sbatch/{model_tag}.{bed}.allele2.sbatch --configfile {snakemake_dir}/{config_yaml} --rerun-incomplete
+'''.format(i=wildcards.i,
+           bed=wildcards.bed,
+           model_tag=wildcards.model_tag,
+           config_yaml=input[1],
+           snakemake_dir=config['snakemake_dir'])
         o = open(output[0], 'w')
         o.write(config_str)
         o.close()
