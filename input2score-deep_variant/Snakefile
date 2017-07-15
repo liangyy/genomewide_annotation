@@ -6,7 +6,7 @@ def get_all_outputs(config):
     out = []
     for f in config['deep_variant']['label']['entry'].keys():
         out.append('scores/{model}/{bed}/merged.{feature}.score.gz'.format(feature=f,
-        model=config['deep_variant']['model']['name'],
+        model=config['deep_variant'][config['model_tag']],
         bed=config['name']))
     return out
 
@@ -27,7 +27,7 @@ rule gen_config:
     params:
         label_string = label_string(config['deep_variant']['label'])
     output:
-        'configs/{bed}/config.{model}.chunk_{i}.yaml'
+        'configs/{bed}/config.{model_tag}.chunk_{i}.yaml'
     run:
         config_str = '''data:
   {taskname}-chunk-{i}:
@@ -39,6 +39,7 @@ model:
   name: '{model_name}'
   snakemake: 'modules/submodules/input2score/_train_model_do_nothing.snakemake'
   workdir: '{model_path}'
+label:
 {label_string}
 genome_assembly:
   fasta: '{fasta}'
@@ -50,8 +51,8 @@ performance:
 '''.format(taskname=wildcards.bed,
 i=wildcards.i,
 label_string=params.label_string,
-model_name=wildcards.model,
-model_path=config['deep_variant']['model'][wildcards.model],
+model_name=config['deep_variant'][wildcards.model_tag]['name'],
+model_path=config['deep_variant'][wildcards.model_tag]['path'],
 fasta=config['genome_assembly']['fasta'],
 size=config['genome_assembly']['size'],
 input_name=input[0])
