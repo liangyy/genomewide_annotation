@@ -6,7 +6,7 @@ def get_all_outputs(config):
     out = []
     for f in config['deep_variant']['label']['entry'].keys():
         out.append('scores/{model}/{bed}/merged.{feature}.score.gz'.format(feature=f,
-        model=config['deep_variant'][config['model_tag']],
+        model=config['deep_variant']['model_tag'],
         bed=config['name']))
     return out
 
@@ -62,9 +62,9 @@ input_name=input[0])
 
 rule output2score:
     input:
-        '{path}/score/{{model}}/{{bed}}-chunk-{{i}}.{group_name}.feather'.format(path=config['deep_variant']['path_to_annotation'], group_name=config['deep_variant']['label']['group_name'])
+        '{path}/score/{{model_tag}}/{{bed}}-chunk-{{i}}.{group_name}.feather'.format(path=config['deep_variant']['path_to_annotation'], group_name=config['deep_variant']['label']['group_name'])
     output:
-        [ 'scores/{{model}}/{{bed}}/chunk_{{i}}.{feature}.score.gz'.format(feature=feature) for feature in config['deep_variant']['label']['entry'].keys() ]
+        [ 'scores/{{model_tag}}/{{bed}}/chunk_{{i}}.{feature}.score.gz'.format(feature=feature) for feature in config['deep_variant']['label']['entry'].keys() ]
     params:
         labels = [ feature for feature in config['deep_variant']['label']['entry'].keys() ]
     shell:
@@ -72,8 +72,8 @@ rule output2score:
 
 rule merge:
     input:
-        files = lambda wildcards: [ 'scores/{{model}}/{{bed}}/chunk_{{i}}.{{feature}}.score.gz'.format(i=i) for i in range(config[wildcards.bed]['number_of_chunk']) ]
+        files = lambda wildcards: [ 'scores/{{model_tag}}/{{bed}}/chunk_{{i}}.{{feature}}.score.gz'.format(i=i) for i in range(config[wildcards.bed]['number_of_chunk']) ]
     output:
-        'scores/{{model}}/{{bed}}/merged.{{feature}}.score.gz'
+        'scores/{model}/{bed}/merged.{feature}.score.gz'
     shell:
         'python scripts/merge.py --inputs {input.files} --output {output[0]}'

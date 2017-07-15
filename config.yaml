@@ -4,6 +4,7 @@ promoter_upstream_1kb:
   prepare_input_script: 'prepare_deep_variant.py'
 name: 'promoter_upstream_1kb'
 deep_variant:
+  model_tag: 'deepsea-stage1'
   deepsea-stage1:
     path: '/project2/xinhe/yanyul/deep_variant/yanyu/deep_brain/my_train/'
     name: 'keras_deepsea_with_040417_2_42_head'
