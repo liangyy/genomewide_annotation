@@ -33,6 +33,7 @@ rule gen_config:
   {taskname}-chunk-{i}:
     name: '{input_name}'
     method: '_formatting_genomewide_annotation.snakemake'
+    check_reference: '0'  # Don't check the reference allele validity
 window_size: 1000 # Attention: this should match the window size of the model below
 model:
   name: '{model_name}'
