@@ -36,8 +36,9 @@ with gzip.open(args.input_seq, 'rb') as f:
         seq = l[1]
         for i in range(len(seq)):
             ref = seq[i].upper()
-            if ref not in base:
-                o_bad.write('{chrm}\t{start}\t{end}\t{ref}'.format(chrm=chrm, start=start + i, end=start + i + 1, ref=ref))
+            if ref not in bases:
+                o_bad.write('{chrm}\t{start}\t{end}\t{ref}\n'.format(chrm=chrm, start=start + i, end=start + i + 1, ref=ref))
+                continue
             (ref1, alt1, ref2, alt2) = order[ref]
             line1 = '{chrm}\t{start}\t{end}\t{ref}\t{alt}'.format(chrm=chrm, start=start + i, end=start + i + 1, ref=ref1, alt=alt1)
             print(line1)
