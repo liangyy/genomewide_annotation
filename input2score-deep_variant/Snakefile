@@ -12,22 +12,22 @@ def get_all_outputs(config):
 
 rule all:
     input:
-        get_all_outputs(config['deep_variant'])
+        get_all_outputs(config)
 
 def label_string(label):
     white = '  '
-    string = white + label['group_name']
+    string = white + label['group_name'] + ':'
     for i in label['entry'].keys():
         string = string + '\n{white}{white}{name}: {idx}'.format(white=white, name=i, idx=label['entry'][i])
     return string
 
 rule gen_config:
     input:
-        '../bed2input/chunks/{{bed}}/chunk_{i}.input.gz'
+        '../bed2input/chunks/{bed}/chunk_{i}.input.gz'
     params:
         label_string = label_string(config['deep_variant']['label'])
     output:
-        'configs/{{bed}}/config.chunk_{i}.yaml'
+        'configs/{bed}/config.{model}.chunk_{i}.yaml'
     run:
         config_str = '''data:
   {taskname}-chunk-{i}:
@@ -50,9 +50,10 @@ performance:
 i=wildcards.i,
 label_string=params.label_string,
 model_name=wildcards.model,
-model_path=config['deep_variant'][wildcards.model]['path'],
+model_path=config['deep_variant']['model'][wildcards.model],
 fasta=config['genome_assembly']['fasta'],
-size=config['genome_assembly']['size'])
+size=config['genome_assembly']['size'],
+input_name=input[0])
         o = open(output[0], 'w')
         o.write(config_str)
         o.close()
