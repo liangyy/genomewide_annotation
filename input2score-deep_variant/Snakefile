@@ -25,10 +25,13 @@ rule gen_config:
     input:
         '../bed2input/chunks/{bed}/chunk_{i}.input.gz'
     params:
-        label_string = label_string(config['deep_variant']['label'])
+        label_string = label_string(config['deep_variant']['label']),
+        snakemake_dir = config['snakemake_dir']
     output:
         'configs/{bed}/config.{model_tag}.chunk_{i}.yaml'
     run:
+        import re
+        input_name = re.sub('\.\.', params.snakemake_dir, input[0])
         config_str = '''data:
   {taskname}-chunk-{i}:
     name: '{input_name}'
@@ -48,6 +51,8 @@ performance:
   mode1:
     method: '_histogram.snakemake'
     params: 'some other input here'
+bed_list: ''
+cadd: ''
 '''.format(taskname=wildcards.bed,
 i=wildcards.i,
 label_string=params.label_string,
@@ -55,7 +60,8 @@ model_name=config['deep_variant'][wildcards.model_tag]['name'],
 model_path=config['deep_variant'][wildcards.model_tag]['path'],
 fasta=config['genome_assembly']['fasta'],
 size=config['genome_assembly']['size'],
-input_name=input[0])
+input_name=input_name,
+snakemake_dir=params.snakemake_dir)
         o = open(output[0], 'w')
         o.write(config_str)
         o.close()

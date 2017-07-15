@@ -7,7 +7,7 @@ deep_variant:
   model_tag: 'deepsea-stage1'
   deepsea-stage1:
     path: '/project2/xinhe/yanyul/deep_variant/yanyu/deep_brain/my_train/'
-    name: 'keras_deepsea_with_040417_2_42_head'
+    name: 'keras_deepsea_with_040417_2_42_head_copy'
   label:
     group_name: 'label'
     entry:
@@ -18,3 +18,4 @@ deep_variant:
 genome_assembly:
   fasta: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.fa'
   size: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.chrom.sizes'
+snakemake_dir: '/project2/xinhe/yanyul/repo/genomewide_annotation/' 
