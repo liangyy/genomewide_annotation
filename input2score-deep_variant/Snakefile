@@ -123,13 +123,17 @@ sbatch {model_name}.{bed}-chunk-{i}.allele2.sbatch
 
 rule output2score:
     input:
-        '{path}/score/{{model_tag}}/{{bed}}-chunk-{{i}}.{group_name}.feather'.format(path=config['deep_variant']['path_to_annotation'], group_name=config['deep_variant']['label']['group_name'])
+        a1 = lambda wildcards: '{path}/score/{model_name}/{{bed}}-chunk-{{i}}_alllele1.hdf5'.format(path=config['deep_variant']['path_to_annotation'], model_name=config['deep_variant'][wildcards.model_tag]['name']),
+        a2 = lambda wildcards: '{path}/score/{model_name}/{{bed}}-chunk-{{i}}_alllele2.hdf5'.format(path=config['deep_variant']['path_to_annotation'], model_name=config['deep_variant'][wildcards.model_tag]['name']),
+        passed = '{path}/data/{{bed}}-chunk-{{i}}.formatted.filter_by_size.pass.reorder'.format(path=config['deep_variant']['path_to_annotation'])
     output:
-        [ 'scores/{{model_tag}}/{{bed}}/chunk_{{i}}.{feature}.score.gz'.format(feature=feature) for feature in config['deep_variant']['label']['entry'].keys() ]
+        [ 'scores/{{bed}}/{{model_tag}}/chunk_{{i}}.{feature}.score.gz'.format(feature=feature) for feature in config['deep_variant']['label']['entry'].keys() ]
     params:
-        labels = [ feature for feature in config['deep_variant']['label']['entry'].keys() ]
+        labels = [ feature for feature in config['deep_variant']['label']['entry'].keys() ],
+        idxs = [ config['deep_variant']['label']['entry'][feature] for feature in config['deep_variant']['label']['entry'].keys() ],
+        prefix = 'scores/{bed}/{model_tag}/chunk_{i}'
     shell:
-        'python scripts/output2score.py --input {input[0]} --out_prefix {wildcards.bed} --labels {params.labels}'
+        'python scripts/output2score.py --input_passed {input.passed}  --input_allele1 {input.a1} --input_allele2 {input.a2} --out_prefix {params.prefix} --labels {params.labels} --idxs {params.idxs}'
 
 rule merge:
     input:
