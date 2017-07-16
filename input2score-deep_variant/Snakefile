@@ -135,10 +135,10 @@ rule output2score:
     shell:
         'python scripts/output2score.py --input_passed {input.passed}  --input_allele1 {input.a1} --input_allele2 {input.a2} --out_prefix {params.prefix} --labels {params.labels} --idxs {params.idxs}'
 
-rule merge:
+rule merge_and_sort:
     input:
         files = lambda wildcards: [ 'scores/{{model_tag}}/{{bed}}/chunk_{{i}}.{{feature}}.score.gz'.format(i=i) for i in range(config[wildcards.bed]['number_of_chunk']) ]
     output:
         'scores/{model}/{bed}/merged.{feature}.score.gz'
     shell:
-        'python scripts/merge.py --inputs {input.files} --output {output[0]}'
+        'bedtools sort -i <(cat {input.files} | zcat) > {output[0]}'
