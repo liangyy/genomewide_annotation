@@ -17,11 +17,11 @@ import my_python
 import pandas as pd
 import h5py
 
-allele1_score = read_hdf5_by_name(args.input_a1, 'y_pred')
-allele2_score = read_hdf5_by_name(args.input_a2, 'y_pred')
+allele1_score = my_python.read_hdf5_by_name(args.input_allele1, 'y_pred')
+allele2_score = my_python.read_hdf5_by_name(args.input_allele2, 'y_pred')
 passed_list = pd.read_table(args.input_passed, header=None, names=['Chr', 'Start', 'End', 'Info'], usecols=[0, 1, 2, 3])
-passed_list_list['ID'] = passed_list_list.apply(lambda x: int(x['Info'].split(':')[0]), axis=1)
-passed_list_list['Allele'] = passed_list_list.apply(lambda x: ','.join(x['Info'].split(':')[1:3]), axis=1)
+passed_list['ID'] = passed_list.apply(lambda x: int(x['Info'].split(':')[0]), axis=1)
+passed_list['Allele'] = passed_list.apply(lambda x: ','.join(x['Info'].split(':')[1:3]), axis=1)
 
 for i in range(len(args.labels)):
     label_name = args.labels[i]
@@ -29,8 +29,8 @@ for i in range(len(args.labels)):
     feature_a1 = allele1_score[:, label_idx]
     feature_a2 = allele2_score[:, label_idx]
     feature = [ ','.join([str(a), str(b)]) for (a, b) in zip(feature_a1, feature_a2) ]
-    passed_list_list[label_name] = feature
-    grouped = passed_list_list.groupby(['Chr', 'Start', 'End'])
+    passed_list[label_name] = feature
+    grouped = passed_list.groupby(['Chr', 'Start', 'End'])
     feature_agg = grouped.agg({
         'Allele' : lambda x: ','.join(x),
         label_name : lambda x: ','.join(x)

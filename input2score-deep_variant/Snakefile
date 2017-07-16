@@ -123,8 +123,8 @@ sbatch {model_name}.{bed}-chunk-{i}.allele2.sbatch
 
 rule output2score:
     input:
-        a1 = lambda wildcards: '{path}/score/{model_name}/{{bed}}-chunk-{{i}}_alllele1.hdf5'.format(path=config['deep_variant']['path_to_annotation'], model_name=config['deep_variant'][wildcards.model_tag]['name']),
-        a2 = lambda wildcards: '{path}/score/{model_name}/{{bed}}-chunk-{{i}}_alllele2.hdf5'.format(path=config['deep_variant']['path_to_annotation'], model_name=config['deep_variant'][wildcards.model_tag]['name']),
+        a1 = lambda wildcards: '{path}/score/{model_name}/{bed}-chunk-{i}_allele1.hdf5'.format(path=config['deep_variant']['path_to_annotation'], model_name=config['deep_variant'][wildcards.model_tag]['name'], bed=wildcards.bed, i=wildcards.i),
+        a2 = lambda wildcards: '{path}/score/{model_name}/{bed}-chunk-{i}_allele2.hdf5'.format(path=config['deep_variant']['path_to_annotation'], model_name=config['deep_variant'][wildcards.model_tag]['name'], bed=wildcards.bed, i=wildcards.i),
         passed = '{path}/data/{{bed}}-chunk-{{i}}.formatted.filter_by_size.pass.reorder'.format(path=config['deep_variant']['path_to_annotation'])
     output:
         [ 'scores/{{bed}}/{{model_tag}}/chunk_{{i}}.{feature}.score.gz'.format(feature=feature) for feature in config['deep_variant']['label']['entry'].keys() ]
