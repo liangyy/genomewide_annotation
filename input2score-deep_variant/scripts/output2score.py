@@ -3,8 +3,8 @@ parser = argparse.ArgumentParser(prog='output2score.py', description='''
     Given the DeepVariantPrediction output (raw output: score in hdf5)
 ''')
 parser.add_argument('--input_passed')
-parser.add_argument('--input_a1')
-parser.add_argument('--input_a2')
+parser.add_argument('--input_allele1')
+parser.add_argument('--input_allele2')
 parser.add_argument('--out_prefix')
 parser.add_argument('--labels', nargs='+')
 parser.add_argument('--idxs', nargs='+', type=int)
@@ -35,4 +35,3 @@ for i in range(len(args.labels)):
         'Allele' : lambda x: ','.join(x),
         label_name : lambda x: ','.join(x)
     })
-    
