@@ -1,6 +1,6 @@
 promoter_upstream_1kb:
   path: '/project2/xinhe/yanyul/repo/genomewide_annotation/data/refseq_id_promoter_1kb_upstream_pair_table.txt'
-  number_of_chunk: 10
+  number_of_chunk: 100
   prepare_input_script: 'prepare_deep_variant.py'
 name: 'promoter_upstream_1kb'
 deep_variant:

@@ -44,7 +44,8 @@ rule gen_config:
     run:
         import re
         input_name = re.sub('\.\.', params.snakemake_dir, input[0])
-        config_str = '''data:
+        config_str = '''data_name: '{taskname}-chunk-{i}'
+data:
   {taskname}-chunk-{i}:
     name: '{input_name}'
     method: '_formatting_genomewide_annotation.snakemake'
@@ -103,15 +104,21 @@ source activate deepvarpred_test
 # module load cuda/7.5 # load cuda dependency for theano to run on GPU. Now we use the default cuda library on RCC (v4.0)
 cd deep_variant/nick/DeepVariantPrediction
 
-snakemake --unlock sbatch/{model_tag}.{bed}.allele1.sbatch sbatch/{model_tag}.{bed}.allele2.sbatch --configfile {snakemake_dir}/{config_yaml}
-snakemake sbatch/{model_tag}.{bed}.allele1.sbatch sbatch/{model_tag}.{bed}.allele2.sbatch --configfile {snakemake_dir}/{config_yaml} --rerun-incomplete
+# snakemake --unlock sbatch/{model_name}.{bed}-chunk-{i}.allele1.sbatch sbatch/{model_name}.{bed}-chunk-{i}.allele2.sbatch --configfile {snakemake_dir}/input2score-deep_variant/{config_yaml}
+# snakemake sbatch/{model_name}.{bed}-chunk-{i}.allele1.sbatch sbatch/{model_name}.{bed}-chunk-{i}.allele2.sbatch --configfile {snakemake_dir}/input2score-deep_variant/{config_yaml} --rerun-incomplete
+snakemake --configfile {snakemake_dir}/input2score-deep_variant/{config_yaml} score_sbatch --unlock
+snakemake --configfile {snakemake_dir}/input2score-deep_variant/{config_yaml} score_sbatch --rerun-incomplete
+cd sbatch
+sbatch {model_name}.{bed}-chunk-{i}.allele1.sbatch
+sbatch {model_name}.{bed}-chunk-{i}.allele2.sbatch
 '''.format(i=wildcards.i,
            bed=wildcards.bed,
            model_tag=wildcards.model_tag,
            config_yaml=input[1],
-           snakemake_dir=config['snakemake_dir'])
+           snakemake_dir=config['snakemake_dir'],
+           model_name=config['deep_variant'][wildcards.model_tag]['name'])
         o = open(output[0], 'w')
-        o.write(config_str)
+        o.write(sbatch)
         o.close()
 
 rule output2score:
