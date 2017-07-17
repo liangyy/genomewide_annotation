@@ -5,7 +5,7 @@
 def get_all_outputs(config):
     out = []
     for f in config['deep_variant']['label']['entry'].keys():
-        out.append('scores/{model}/{bed}/merged.{feature}.score.gz'.format(feature=f,
+        out.append('scores/{bed}/{model}/merged.{feature}.score.gz'.format(feature=f,
         model=config['deep_variant']['model_tag'],
         bed=config['name']))
     return out
@@ -137,8 +137,8 @@ rule output2score:
 
 rule merge_and_sort:
     input:
-        files = lambda wildcards: [ 'scores/{{model_tag}}/{{bed}}/chunk_{{i}}.{{feature}}.score.gz'.format(i=i) for i in range(config[wildcards.bed]['number_of_chunk']) ]
+        files = lambda wildcards: [ 'scores/{bed}/{model_tag}/chunk_{i}.{feature}.score.gz'.format(i=i, model_tag=wildcards.model_tag, bed=wildcards.bed, feature=wildcards.feature) for i in range(config[wildcards.bed]['number_of_chunk']) ]
     output:
-        'scores/{model}/{bed}/merged.{feature}.score.gz'
+        'scores/{bed}/{model_tag}/merged.{feature}.score.gz'
     shell:
         'bedtools sort -i <(cat {input.files} | zcat) > {output[0]}'
