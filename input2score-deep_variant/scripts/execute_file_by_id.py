@@ -7,7 +7,7 @@ parser.add_argument('--prefix', help='''
 ''')
 parser.add_argument('--suffix')
 parser.add_argument('--execute')
-parser.add_argument('-id_list', help = 'Separate by ,')
+parser.add_argument('--id_list', help = 'Separate by ,')
 args = parser.parse_args()
 
 import os
@@ -18,4 +18,3 @@ for idx in ids:
 	filename = '{prefix}{idx}{suffix}'.format(prefix=args.prefix, suffix=args.suffix, idx=idx)
 	cmd = '{exe} {file}'.format(exe=args.execute, file=filename)
 	os.system(cmd)
-	
