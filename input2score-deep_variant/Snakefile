@@ -1,6 +1,7 @@
 # This module makes use of DeepVariantPrediction at
 # https://github.com/CreRecombinase/DeepVariantPrediction/tree/issue1
-# It generate the configfile that is ready to be used in the above pipeline
+# It generate the configfile along with sbatch that is ready to be used in the
+# above pipeline
 
 def get_all_outputs(config):
     out = []

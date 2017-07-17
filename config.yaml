@@ -15,7 +15,25 @@ deep_variant:
       E129: 3
       Noonan: 4
   path_to_annotation: '/project2/xinhe/yanyul/deep_variant/nick/DeepVariantPrediction'
+footprint_annotation:
+  model_tag: 'fetal-brain-roadmap'
+  fetal-brain-roadmap:
+    SRX026914: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX026914.bed.gz'
+    SRX027076: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX027076.bed.gz'
+    SRX027083: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX027083.bed.gz'
+    SRX027085: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX027085.bed.gz'
+    SRX027086: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX027086.bed.gz'
+    SRX027089: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX027089.bed.gz'
+    SRX027091: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX027091.bed.gz'
+    SRX040380: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX040380.bed.gz'
+    SRX040395: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX040395.bed.gz'
+    SRX062364: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX062364.bed.gz'
+    SRX121276: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX121276.bed.gz'
+    SRX121277: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX121277.bed.gz'
+    SRX121278: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX121278.bed.gz'
+    SRX201815: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX201815.bed.gz'
+  path_to_annotation: '/project2/xinhe/yanyul/repo/footprint_annotation/strategy1'
 genome_assembly:
   fasta: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.fa'
   size: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.chrom.sizes'
-snakemake_dir: '/project2/xinhe/yanyul/repo/genomewide_annotation/' 
+snakemake_dir: '/project2/xinhe/yanyul/repo/genomewide_annotation/'
