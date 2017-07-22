@@ -48,8 +48,9 @@ rule prepare_config:
 snp_list:
   {bed}-chunk-{i}:
     path: '{home_dir}/input2score-footprint_annotation/{snp_list}'
-    ncol_of_snp_list: 5
+    ncol_of_snp_list: 6
     snp_view_method: 'zcat'
+    check_ref: '0'
 motif_folder: '../recalibratedMotifs/'
 genome: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.fa'
 '''.format(footprint_bed_str=params.footprint_bed_str,
