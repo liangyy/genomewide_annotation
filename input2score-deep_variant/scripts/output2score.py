@@ -30,11 +30,11 @@ for i in range(len(args.labels)):
     feature_a2 = allele2_score[:, label_idx]
     feature = [ ','.join([str(a), str(b)]) for (a, b) in zip(feature_a1, feature_a2) ]
     passed_list[label_name] = feature
-    grouped = passed_list.groupby(['Chr', 'Start', 'End'])
+    grouped = passed_list.groupby(['Chr', 'Start', 'End'], sort=False)
     feature_agg = grouped.agg({
         'Allele' : lambda x: ','.join(x),
         label_name : lambda x: ','.join(x)
-    }, sort=False)
+    })
     feature_agg.to_csv('{prefix}.{feature}.score.gz'.format(prefix=args.out_prefix, feature=label_name),
         sep='\t',
         compression='gzip',

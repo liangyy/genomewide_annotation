@@ -142,4 +142,4 @@ rule merge_and_sort:
     output:
         'scores/{bed}/{model_tag}/merged.{feature}.score.gz'
     shell:
-        'bedtools sort -i <(cat {input.files} | zcat) > {output[0]}'
+        'bedtools sort -i <(zcat {input.files}) | zcat > {output[0]}'
