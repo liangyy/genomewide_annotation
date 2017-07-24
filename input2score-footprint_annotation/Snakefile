@@ -95,3 +95,12 @@ snakemake --configfile {snakemake_dir}/input2score-footprint_annotation/{config_
         o = open(output[0], 'w')
         o.write(sbatch)
         o.close()
+
+rule output2score:
+    input:
+        score = lambda wildcards: '{path}/data/output.{{footprint_bed}}.{{bed}}-chunk-{{i}}.bed'.format(path=config['footprint_annotation']['path_to_annotation']),  # , bed=wildcards.bed, i=wildcards.i)
+        idx = lambda wildcards: '{path}/data/footprint_snp.{{footprint_bed}}.{{bed}}-chunk-{{i}}.bed'.format(path=config['footprint_annotation']['path_to_annotation'])
+    output:
+        'scores/{bed}/{model_tag}/chunk_{{i}}.{footprint_bed}.score.gz'
+    shell:
+        'python scripts/output2score.py --score {input.score} --idx {input.idx} --output {output[0]}'

@@ -34,7 +34,7 @@ for i in range(len(args.labels)):
     feature_agg = grouped.agg({
         'Allele' : lambda x: ','.join(x),
         label_name : lambda x: ','.join(x)
-    })
+    }, sort=False)
     feature_agg.to_csv('{prefix}.{feature}.score.gz'.format(prefix=args.out_prefix, feature=label_name),
         sep='\t',
         compression='gzip',
