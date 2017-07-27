@@ -13,9 +13,17 @@ rule all:
     input:
         all_chunks(config['name'])
 
-rule split:
+rule merge_overlap:
     input:
         lambda wildcards: config[wildcards.bed]['path']
+    output:
+        'merged/{bed}.merged.bed'
+    shell:
+        'bedtools merge -i {input[0]} -c 4,5 -o collpase,collpase > {output[0]}'
+
+rule split:
+    input:
+        'merged/{bed}.merged.bed'
     params:
         nchunk = lambda wildcards: config[wildcards.bed]['number_of_chunk'],
         outdir = lambda wildcards: 'chunks/{bed}/'
