@@ -120,7 +120,7 @@ rule output2score:
 
 rule merge_and_sort:
     input:
-        files = lambda wildcards: [ 'scores/{{bed}}/{{model_tag}}/chunk_{i}.{{footprint_bed}}.score.gz'.format(i=i) for i in range(config[wildcards.bed]['number_of_chunk']) ]  # , model_tag=wildcards.model_tag, bed=wildcards.bed, feature=wildcards.feature
+        files = lambda wildcards: [ 'scores/{bed}/{model_tag}/chunk_{i}.{footprint_bed}.score.gz'.format(i=i, model_tag=wildcards.model_tag, bed=wildcards.bed, footprint_bed=wildcards.footprint_bed) for i in range(config[wildcards.bed]['number_of_chunk']) ]  
     output:
         'scores/{bed}/{model_tag}/merged.{footprint_bed}.score.gz'
     shell:
