@@ -49,6 +49,7 @@ snp_list:
   {bed}-chunk-{i}:
     path: '{home_dir}/input2score-footprint_annotation/{snp_list}'
     ncol_of_snp_list: 6
+    read_first_line: ''
     snp_view_method: 'zcat'
     check_ref: '0'
 motif_folder: '../recalibratedMotifs/'
