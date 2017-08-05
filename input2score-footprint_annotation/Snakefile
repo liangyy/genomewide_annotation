@@ -11,6 +11,18 @@ def step1_sbatchs(config):
         model_tag=config['footprint_annotation']['model_tag']))
     return out
 
+def get_all_outputs(config):
+    out = []
+    for f in config['footprint_annotation'][config['footprint_annotation']['model_tag']].keys():
+        out.append('scores/{bed}/{model}/merged.{footprint_bed}.score.gz'.format(footprint_bed=f,
+        model=config['footprint_annotation']['model_tag'],
+        bed=config['name']))
+    return out
+
+rule all:
+    input:
+        get_all_outputs(config)
+
 rule step1:
     input:
         step1_sbatchs(config)
@@ -105,3 +117,11 @@ rule output2score:
         'scores/{bed}/{model_tag}/chunk_{{i}}.{footprint_bed}.score.gz'
     shell:
         'python scripts/output2score.py --score {input.score} --idx {input.idx} --output {output[0]}'
+
+rule merge_and_sort:
+    input:
+        files = lambda wildcards: [ 'scores/{{bed}}/{{model_tag}}/chunk_{i}.{{footprint_bed}}.score.gz'.format(i=i) for i in range(config[wildcards.bed]['number_of_chunk']) ]  # , model_tag=wildcards.model_tag, bed=wildcards.bed, feature=wildcards.feature
+    output:
+        'scores/{bed}/{model_tag}/merged.{footprint_bed}.score.gz'
+    shell:
+        'bedtools sort -i <(zcat {input.files}) | gzip > {output[0]}'
