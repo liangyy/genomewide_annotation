@@ -6,7 +6,7 @@ def get_all_outputs(config):
     for f in config['deep_variant']['label']['entry'].keys():
         for m in config['deep_variant']['methods'].keys():
             out.append('output/{input2score_method}/{bed}/{model}/merged.{something}.bed'.format(
-                input2score_method=m
+                input2score_method=m,
                 something=f,
                 model=config['deep_variant']['model_tag'],
                 bed=config['name'])
@@ -14,9 +14,9 @@ def get_all_outputs(config):
     for f in config['footprint_annotation'][config['footprint_annotation']['model_tag']].keys():
         for m in config['footprint_annotation']['methods'].keys():
             out.append('output/{input2score_method}/{bed}/{model}/merged.{something}.bed'.format(
-                input2score_method=m
+                input2score_method=m,
                 something=f,
-                model=config['footprint_annotation']['model_tag']],
+                model=config['footprint_annotation']['model_tag'],
                 bed=config['name'])
             )
     return out
