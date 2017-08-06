@@ -5,8 +5,9 @@ parser = argparse.ArgumentParser(prog='score2rawbed.py', description='''
 ''')
 parser.add_argument('--input')
 parser.add_argument('--output')
-parser.add_argument('--method')
-parser.add_argument('--percentage', type=float, help='''
+parser.add_argument('--calculator')
+parser.add_argument('--filter')
+parser.add_argument('--param', help='''
     Top `percentage` percent (bigger ones have higher percentage)
 ''')
 args = parser.parse_args()
@@ -28,20 +29,24 @@ else:
     allele_col = -2
     score_col = -1
 calculator_cls = ScoreCalculater()
-calculator = getattr(calculator_cls, args.method)
+calculator = getattr(calculator_cls, args.calculator)
+filter_cls = Filter()
+filterr = getattr(filter_cls, args.filter)
 all_scores = []
+all_original_scores = []
 positions = []
+
 with f as open(args.input, 'r'):
     for i in f:
         i = i.split('\t')
         scores = i[score_col]
         alleles = i[allele_col]
         positions.append(i[:3])
-        all_scores.append(calculator(scores, alleles))
-threshold = np.percentile(all_scores, args.percentage * 100)
+        all_scores.append(calculator(scores))
+        all_original_scores.append([ float(i) for i in scores.split(',') ])
+
+passed_idx = filterr(all_scores, all_original_scores, args.threshold)
 positions = pd.DataFrame(positions)
-all_scores = pd.DataFrame(all_scores)
-passed_idx = all_scores[all_scores.max(axis=1) >= threshold].index.tolist()
 passed_positions = positions.ix[passed_idx]
 pd.to_csv(args.output,
     sep='\t',

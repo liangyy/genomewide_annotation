@@ -15,6 +15,11 @@ deep_variant:
       E129: 3
       Noonan: 4
   path_to_annotation: '/project2/xinhe/yanyul/deep_variant/nick/DeepVariantPrediction'
+  methods:
+    logit_diff:
+      calculator: 'abs_logit_change'
+      filter: 'percentage_thresholding'
+      param: 0.95  # Percentage threshold
 footprint_annotation:
   model_tag: 'fetal-brain-roadmap'
   fetal-brain-roadmap:
@@ -33,6 +38,15 @@ footprint_annotation:
     SRX121278: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX121278.bed.gz'
     SRX201815: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX201815.bed.gz'
   path_to_annotation: '/project2/xinhe/yanyul/repo/footprint_annotation/strategy1'
+  methods:
+    footprint_snp:
+      calculator: 'nothing'
+      filter: 'footprint_snp'
+      param: 'None'
+    binding_variant:
+      calculator: 'fold_change'
+      filter: 'binding_variant'
+      param: '0.9,20'  # Prior binding prob >= 0.9 and log fold change >= log(20)
 genome_assembly:
   fasta: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.fa'
   size: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.chrom.sizes'

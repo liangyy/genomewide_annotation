@@ -7,13 +7,15 @@ rule score2rawbed:
     output:
         temp('bed/{input2score_method}/{bed}/{model_tag}/{method}/chunk_{i}.{something}.raw.bed.gz')
     params:
-        # method = config[wildcards.input2score_method]['raw_bed_method'],
-        percentage = config[wildcards.input2score_method]['percentage']
+        calculator = config[wildcards.input2score_method]['methods'][wildcards.method]['calculator'],
+        filterr = config[wildcards.input2score_method]['methods'][wildcards.method]['filter'],
+        param = config[wildcards.input2score_method]['methods'][wildcards.method]['param']
     shell:
         'python scripts/score2rawbed.py --input {input[0]} \
         --output {output[0]} \
-        --method {wildcards.method} \
-        --percentage {params.percentage}'
+        --calculator {params.calculator} \
+        --filter {params.filterr} \
+        --param {params.param}'
 
 rule rawbed2bed:
     input:
