@@ -16,6 +16,14 @@ import pandas as pd
 import numpy as np
 
 input_score = pd.read_table(args.input_score, header=0, usecols=[0, 3, 8, 9], dtype={'SNP.ID': np.int32, 'Motif.ID': str, 'LogRatioPrior.Ref': np.float64, 'LogRatioPrior.Alt': np.float64})
+
+if input_score.shape[0] == 0:
+    temp = pd.DataFrame([])
+    temp.to_csv(args.output,
+        sep='\t',
+        compression='gzip',
+        header=False)
+    sys.exit()
 input_snp = pd.read_table(args.input_snp, header=None, compression='gzip', converters={'Chr': str, 'Start': np.int32, 'End': np.int32, 'Allele1': str, 'Allele2': str, 'ID': np.int32, 'Motif': str}, usecols=[0, 1, 2, 3, 4, 5, 9], names=['Chr', 'Start', 'End', 'Allele1', 'Allele2', 'ID', 'Motif'])
 feature_a1 = input_score['LogRatioPrior.Ref']
 feature_a2 = input_score['LogRatioPrior.Alt']

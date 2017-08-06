@@ -1,5 +1,0 @@
-# This module takes the output of input2score and convert it into TSV format
-
-rule convert2tsv:
-    input:
-        '../'
