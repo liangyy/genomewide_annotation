@@ -1,0 +1,32 @@
+# This module takes the output of input2score-METHOD and generates the
+# corresponding BED file by applying some threshold
+
+rule score2rawbed:
+    input:
+        '../{input2score_method}/scores/{bed}/{model_tag}/chunk_{i}.{something}.score.gz'
+    output:
+        temp('bed/{input2score_method}/{bed}/{model_tag}/{method}/chunk_{i}.{something}.raw.bed.gz')
+    params:
+        # method = config[wildcards.input2score_method]['raw_bed_method'],
+        percentage = config[wildcards.input2score_method]['percentage']
+    shell:
+        'python scripts/score2rawbed.py --input {input[0]} \
+        --output {output[0]} \
+        --method {wildcards.method} \
+        --percentage {params.percentage}'
+
+rule rawbed2bed:
+    input:
+        'bed/{input2score_method}/{bed}/{model_tag}/chunk_{i}.{something}.raw.bed.gz'
+    output:
+        temp('bed/{input2score_method}/{bed}/{model_tag}/chunk_{i}.{something}.cleaned.bed.gz')
+    shell:
+        'bedtools merge -i <(zcat {input[0]}) | gzip > {output[0]}'
+
+rule merge:
+    input:
+        files = lambda wildcards: [ 'bed/{input2score_method}/{bed}/{model_tag}/chunk_{i}.{something}.cleaned.bed.gz'.format(i=i, model_tag=wildcards.model_tag, bed=wildcards.bed, footprint_bed=wildcards.footprint_bed) for i in range(config[wildcards.bed]['number_of_chunk']) ]
+    output:
+        'output/{input2score_method}/{bed}/{model_tag}/merged.{something}.bed'
+    shell:
+        'bedtools sort -i <(zcat {input.files}) | gzip > {output[0]}'
