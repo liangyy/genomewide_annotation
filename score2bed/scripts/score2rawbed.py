@@ -19,6 +19,7 @@ import my_python
 import pandas as pd
 import numpy as np
 import h5py
+import gzip
 
 input_table = pd.read_table(args.input, header=None, nrows=2)
 scores_n_alleles = input_table.iloc[:, [-2, -1]]
@@ -36,7 +37,7 @@ all_scores = []
 all_original_scores = []
 positions = []
 
-with open(args.input, 'r') as f:
+with gzip.open(args.input, 'r') as f:
     for i in f:
         i = i.split('\t')
         scores = i[score_col]
