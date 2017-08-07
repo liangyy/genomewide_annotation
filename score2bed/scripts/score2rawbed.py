@@ -28,9 +28,9 @@ if scores_n_alleles.iloc[0, 0].split(',')[0] in ['A', 'T', 'G', 'C', 'N']:
 else:
     allele_col = -2
     score_col = -1
-calculator_cls = ScoreCalculater()
+calculator_cls = my_python.ScoreCalculater()
 calculator = getattr(calculator_cls, args.calculator)
-filter_cls = Filter()
+filter_cls = my_python.Filter()
 filterr = getattr(filter_cls, args.filter)
 all_scores = []
 all_original_scores = []
