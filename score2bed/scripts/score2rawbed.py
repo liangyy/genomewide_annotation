@@ -39,6 +39,7 @@ positions = []
 
 with gzip.open(args.input, 'r') as f:
     for i in f:
+        i = i.decode()
         i = i.split('\t')
         scores = i[score_col]
         alleles = i[allele_col]
