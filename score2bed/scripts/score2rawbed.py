@@ -47,7 +47,7 @@ with gzip.open(args.input, 'r') as f:
         all_scores.append(calculator(scores))
         all_original_scores.append([ float(i) for i in scores.split(',') ])
 
-passed_idx = filterr(all_scores, all_original_scores, args.threshold)
+passed_idx = filterr(all_scores, all_original_scores, args.param)
 positions = pd.DataFrame(positions)
 passed_positions = positions.ix[passed_idx]
 pd.to_csv(args.output,
