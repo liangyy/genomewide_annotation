@@ -44,7 +44,7 @@ footprint_annotation:
       filter: 'footprint_snp'
       param: 'None'
     binding_variant:
-      calculator: 'fold_change'
+      calculator: 'abs_change'
       filter: 'binding_variant'
       param: '0.9,20'  # Prior binding prob >= 0.9 and log fold change >= log(20)
 genome_assembly:

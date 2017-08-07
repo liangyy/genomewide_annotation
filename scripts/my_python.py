@@ -16,6 +16,7 @@ def read_hdf5_by_name(filename, name):
 
 def _logit(a):
     return np.log(a / (1 - a + 1e-10))
+
 class ScoreCalculater:
     def get_scores(self, scores):
         i = [ float(i) for i in scores.split(',') ]
@@ -37,6 +38,7 @@ class ScoreCalculater:
         for i in scores:
             for_return.append(abs(i - ref_score))
         return for_return
+        
 class Filter:
     def percentage_thresholding(all_scores, all_original_scores, percentage):
         threshold = np.percentile(all_scores, float(percentage) * 100)
