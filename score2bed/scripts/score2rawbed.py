@@ -21,8 +21,8 @@ import numpy as np
 import h5py
 
 input_table = pd.read_table(args.input, header=None, nrows=2)
-scores_n_alleles = input_table[[-2, -1]]
-if scores_n_alleles[0, 0].split(',')[0] in ['A', 'T', 'G', 'C', 'N']:
+scores_n_alleles = input_table.iloc[:, [-2, -1]]
+if scores_n_alleles.iloc[0, 0].split(',')[0] in ['A', 'T', 'G', 'C', 'N']:
     allele_col = -2
     score_col = -1
 else:
@@ -36,7 +36,7 @@ all_scores = []
 all_original_scores = []
 positions = []
 
-with f as open(args.input, 'r'):
+with open(args.input, 'r') as f:
     for i in f:
         i = i.split('\t')
         scores = i[score_col]
