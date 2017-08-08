@@ -21,14 +21,22 @@ import numpy as np
 import h5py
 import gzip
 
-input_table = pd.read_table(args.input, header=None, nrows=2)
+try:
+    input_table = pd.read_table(args.input, header=None, nrows=2)
+except pd.io.common.EmptyDataError:
+    passed_positions = pd.DataFrame([])
+    passed_positions.to_csv(args.output,
+        sep='\t',
+        compression='gzip',
+        header=False, index=False)
+    sys.exit()
 scores_n_alleles = input_table.iloc[:, [-2, -1]]
 if scores_n_alleles.iloc[0, 0].split(',')[0] in ['A', 'T', 'G', 'C', 'N']:
     allele_col = -2
     score_col = -1
 else:
-    allele_col = -2
-    score_col = -1
+    allele_col = -1
+    score_col = -2
 calculator_cls = my_python.ScoreCalculater()
 calculator = getattr(calculator_cls, args.calculator)
 filter_cls = my_python.Filter()
@@ -50,7 +58,7 @@ with gzip.open(args.input, 'r') as f:
 passed_idx = filterr(all_scores, all_original_scores, args.param)
 positions = pd.DataFrame(positions)
 passed_positions = positions.ix[passed_idx]
-pd.to_csv(args.output,
+passed_positions.to_csv(args.output,
     sep='\t',
     compression='gzip',
-    header=False)
+    header=False, index=False)

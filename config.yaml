@@ -18,8 +18,8 @@ deep_variant:
   methods:
     logit_diff:
       calculator: 'abs_logit_change'
-      filter: 'percentage_thresholding'
-      param: 0.95  # Percentage threshold
+      filter: 'hard_log_thresholding'
+      param: 2  # Hard threshold
 footprint_annotation:
   model_tag: 'fetal-brain-roadmap'
   fetal-brain-roadmap:
