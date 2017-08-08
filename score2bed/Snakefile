@@ -10,13 +10,13 @@ def get_all_outputs(config):
                 something=f,
                 model=config['deep_variant']['model_tag'],
                 bed=config['name']))
-    for f in config['footprint_annotation'][config['footprint_annotation']['model_tag']].keys():
-        for m in config['footprint_annotation']['methods'].keys():
-            out.append('output/input2score-footprint_annotation/{bed}/{model}/{method}/merged.{something}.bed'.format(
-                method=m,
-                something=f,
-                model=config['footprint_annotation']['model_tag'],
-                bed=config['name']))
+    # for f in config['footprint_annotation'][config['footprint_annotation']['model_tag']].keys():
+    for m in config['footprint_annotation']['methods'].keys():
+        out.append('output/input2score-footprint_annotation/{bed}/{model}/{method}/merged.all.bed'.format(
+            method=m,
+            # something=f,
+            model=config['footprint_annotation']['model_tag'],
+            bed=config['name']))
     return out
 
 rule all:
@@ -55,10 +55,21 @@ rule merge:
     shell:
         'bedtools sort -i <(zcat {input.files}) | gzip > {output[0]}'
 
+def get_all_files(wildcards, config):
+    out = []
+    for n in config[wildcards.input2score_method][config[wildcards.input2score_method]['model_tag']].keys():
+        out.append('output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.bed'.format(
+            input2score_method=wildcards.input2score_method,
+            bed=wildcards.bed,
+            model_tag=wildcards.model_tag,
+            method=wildcards.method,
+            something=n))
+    return out
 
-
-
-
-
-
-
+rule merge_all:  # For footprint_annotation
+    input:
+        files = lambda wildcards: get_all_files(wildcards, config)
+    output:
+        'output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.all.bed'
+    shell:
+        'bedtools merge -i <(bedtools sort -i <(zcat {input.files})) | gzip {output[0]}'
