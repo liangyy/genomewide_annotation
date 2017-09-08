@@ -23,7 +23,7 @@ def read_hdf5_by_name(filename, name):
     return scores
 
 def _logit(a):
-    return np.log(a / (1 - a + 1e-10))
+    return np.log((a + 1e-10) / (1 - a + 1e-10))
 
 class ScoreCalculater:
     def get_scores(self, scores):

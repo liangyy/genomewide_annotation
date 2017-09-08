@@ -5,14 +5,14 @@ def get_all_outputs(config):
     out = []
     for f in config['deep_variant']['label']['entry'].keys():
         for m in config['deep_variant']['methods'].keys():
-            out.append('output/input2score-deep_variant/{bed}/{model}/{method}/merged.{something}.bed'.format(
+            out.append('output/input2score-deep_variant/{bed}/{model}/{method}/merged.{something}.bed.gz'.format(
                 method=m,
                 something=f,
                 model=config['deep_variant']['model_tag'],
                 bed=config['name']))
     # for f in config['footprint_annotation'][config['footprint_annotation']['model_tag']].keys():
     for m in config['footprint_annotation']['methods'].keys():
-        out.append('output/input2score-footprint_annotation/{bed}/{model}/{method}/merged.all.bed'.format(
+        out.append('output/input2score-footprint_annotation/{bed}/{model}/{method}/merged.all.bed.gz'.format(
             method=m,
             # something=f,
             model=config['footprint_annotation']['model_tag'],
@@ -51,14 +51,14 @@ rule merge:
     input:
         files = lambda wildcards: [ 'bed/input2score-{input2score_method}/{bed}/{model_tag}/{method}/chunk_{i}.{something}.cleaned.bed.gz'.format(i=i, model_tag=wildcards.model_tag, bed=wildcards.bed, something=wildcards.something, input2score_method=wildcards.input2score_method, method=wildcards.method) for i in range(config[wildcards.bed]['number_of_chunk']) ]
     output:
-        'output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.bed'
+        'output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.bed.gz'
     shell:
         'bedtools sort -i <(zcat {input.files}) | gzip > {output[0]}'
 
 def get_all_files(wildcards, config):
     out = []
     for n in config[wildcards.input2score_method][config[wildcards.input2score_method]['model_tag']].keys():
-        out.append('output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.bed'.format(
+        out.append('output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.bed.gz'.format(
             input2score_method=wildcards.input2score_method,
             bed=wildcards.bed,
             model_tag=wildcards.model_tag,
@@ -70,6 +70,6 @@ rule merge_all:  # For footprint_annotation
     input:
         files = lambda wildcards: get_all_files(wildcards, config)
     output:
-        'output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.all.bed'
+        'output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.all.bed.gz'
     shell:
-        'bedtools merge -i <(bedtools sort -i <(zcat {input.files})) | gzip {output[0]}'
+        'bedtools merge -i <(bedtools sort -i <(zcat {input.files})) | gzip > {output[0]}'
