@@ -26,8 +26,8 @@ rule all:
 rule get_allele_specific_output:
     input:
         '../input2score-{input2score_method}/scores/{bed}/{model_tag}/merged.{something}.score.gz'
-    output
-        'report/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.allele-specific.gz'
+    output:
+        'output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.allele-specific.gz'
     params:
         calculator = lambda wildcards: config[wildcards.input2score_method]['methods'][wildcards.method]['calculator']
     shell:
