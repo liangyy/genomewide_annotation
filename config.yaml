@@ -17,7 +17,7 @@ deep_variant:
   path_to_annotation: '/project2/xinhe/yanyul/deep_variant/nick/DeepVariantPrediction'
   methods:
     log_odds_ratio:
-      calculator: 'abs_logit_change'
+      calculator: 'log_odds_ratio'
       # filter: 'hard_log_thresholding'
       # param: 2  # Hard threshold
 footprint_annotation:
@@ -40,7 +40,7 @@ footprint_annotation:
   path_to_annotation: '/project2/xinhe/yanyul/repo/footprint_annotation/strategy1'
   methods:
     log_odds_ratio:
-      calculator: 'abs_logit_change'
+      calculator: 'log_odds_ratio'
       # filter: 'hard_log_thresholding'
       # param: 2  # Hard threshold
     # footprint_snp:
