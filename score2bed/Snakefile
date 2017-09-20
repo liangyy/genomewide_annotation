@@ -10,13 +10,13 @@ def get_all_outputs(config):
                 something=f,
                 model=config['deep_variant']['model_tag'],
                 bed=config['name']))
-    # for f in config['footprint_annotation'][config['footprint_annotation']['model_tag']].keys():
-    for m in config['footprint_annotation']['methods'].keys():
-        out.append('output/input2score-footprint_annotation/{bed}/{model}/{method}/merged.allele-specific.gz'.format(
-            method=m,
-            # something=f,
-            model=config['footprint_annotation']['model_tag'],
-            bed=config['name']))
+    for f in config['footprint_annotation'][config['footprint_annotation']['model_tag']].keys():
+        for m in config['footprint_annotation']['methods'].keys():
+            out.append('output/input2score-footprint_annotation/{bed}/{model}/{method}/merged.{something}.allele-specific.gz'.format(
+                method=m,
+                # something=f,
+                model=config['footprint_annotation']['model_tag'],
+                bed=config['name']))
     return out
 
 rule all:

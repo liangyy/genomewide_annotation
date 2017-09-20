@@ -16,10 +16,10 @@ deep_variant:
       Noonan: 4
   path_to_annotation: '/project2/xinhe/yanyul/deep_variant/nick/DeepVariantPrediction'
   methods:
-    logit_diff:
+    log_odds_ratio:
       calculator: 'abs_logit_change'
-      filter: 'hard_log_thresholding'
-      param: 2  # Hard threshold
+      # filter: 'hard_log_thresholding'
+      # param: 2  # Hard threshold
 footprint_annotation:
   model_tag: 'fetal-brain-roadmap'
   fetal-brain-roadmap:
@@ -39,14 +39,18 @@ footprint_annotation:
     SRX201815: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX201815.bed.gz'
   path_to_annotation: '/project2/xinhe/yanyul/repo/footprint_annotation/strategy1'
   methods:
-    footprint_snp:
-      calculator: 'nothing'
-      filter: 'footprint_snp'
-      param: 'None'
-    binding_variant:
-      calculator: 'abs_change'
-      filter: 'binding_variant'
-      param: '0.9,20'  # Prior binding prob >= 0.9 and log fold change >= log(20)
+    log_odds_ratio:
+      calculator: 'abs_logit_change'
+      # filter: 'hard_log_thresholding'
+      # param: 2  # Hard threshold
+    # footprint_snp:
+    #   calculator: 'nothing'
+    #   # filter: 'footprint_snp'
+    #   # param: 'None'
+    # binding_variant:
+    #   calculator: 'abs_change'
+    #   # filter: 'binding_variant'
+    #   # param: '0.9,20'  # Prior binding prob >= 0.9 and log fold change >= log(20)
 genome_assembly:
   fasta: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.fa'
   size: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.chrom.sizes'
