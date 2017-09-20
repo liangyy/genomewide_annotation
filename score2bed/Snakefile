@@ -5,14 +5,14 @@ def get_all_outputs(config):
     out = []
     for f in config['deep_variant']['label']['entry'].keys():
         for m in config['deep_variant']['methods'].keys():
-            out.append('output/input2score-deep_variant/{bed}/{model}/{method}/merged.{something}.bed.gz'.format(
+            out.append('output/input2score-deep_variant/{bed}/{model}/{method}/merged.{something}.allele-specific.gz'.format(
                 method=m,
                 something=f,
                 model=config['deep_variant']['model_tag'],
                 bed=config['name']))
     # for f in config['footprint_annotation'][config['footprint_annotation']['model_tag']].keys():
     for m in config['footprint_annotation']['methods'].keys():
-        out.append('output/input2score-footprint_annotation/{bed}/{model}/{method}/merged.all.bed.gz'.format(
+        out.append('output/input2score-footprint_annotation/{bed}/{model}/{method}/merged.allele-specific.gz'.format(
             method=m,
             # something=f,
             model=config['footprint_annotation']['model_tag'],
@@ -23,53 +23,84 @@ rule all:
     input:
         get_all_outputs(config)
 
-rule score2rawbed:
+rule get_allele_specific_output:
     input:
-        '../input2score-{input2score_method}/scores/{bed}/{model_tag}/chunk_{i}.{something}.score.gz'
-    output:
-        temp('bed/input2score-{input2score_method}/{bed}/{model_tag}/{method}/chunk_{i}.{something}.raw.bed.gz')
+        '../input2score-{input2score_method}/scores/{bed}/{model_tag}/merged.{something}.score.gz'
+    output
+        'report/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.allele-specific.gz'
     params:
-        calculator = lambda wildcards: config[wildcards.input2score_method]['methods'][wildcards.method]['calculator'],
-        filterr = lambda wildcards: config[wildcards.input2score_method]['methods'][wildcards.method]['filter'],
-        param = lambda wildcards: config[wildcards.input2score_method]['methods'][wildcards.method]['param']
+        calculator = lambda wildcards: config[wildcards.input2score_method]['methods'][wildcards.method]['calculator']
     shell:
-        'python scripts/score2rawbed.py --input {input[0]} \
+        'python scripts/compute_score.py --input {input[0]} \
         --output {output[0]} \
-        --calculator {params.calculator} \
-        --filter {params.filterr} \
-        --param {params.param}'
+        --calculator {params.calculator}'
 
-rule rawbed2bed:
-    input:
-        'bed/input2score-{input2score_method}/{bed}/{model_tag}/{method}/chunk_{i}.{something}.raw.bed.gz'
-    output:
-        temp('bed/input2score-{input2score_method}/{bed}/{model_tag}/{method}/chunk_{i}.{something}.cleaned.bed.gz')
-    shell:
-        'bedtools merge -i <(zcat {input[0]}) | gzip > {output[0]}'
+# The following codes tend to apply filtering step to the computed scores but here we don't have to convert
+# allele specific information into binary one.
 
-rule merge:
-    input:
-        files = lambda wildcards: [ 'bed/input2score-{input2score_method}/{bed}/{model_tag}/{method}/chunk_{i}.{something}.cleaned.bed.gz'.format(i=i, model_tag=wildcards.model_tag, bed=wildcards.bed, something=wildcards.something, input2score_method=wildcards.input2score_method, method=wildcards.method) for i in range(config[wildcards.bed]['number_of_chunk']) ]
-    output:
-        'output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.bed.gz'
-    shell:
-        'bedtools sort -i <(zcat {input.files}) | gzip > {output[0]}'
-
-def get_all_files(wildcards, config):
-    out = []
-    for n in config[wildcards.input2score_method][config[wildcards.input2score_method]['model_tag']].keys():
-        out.append('output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.bed.gz'.format(
-            input2score_method=wildcards.input2score_method,
-            bed=wildcards.bed,
-            model_tag=wildcards.model_tag,
-            method=wildcards.method,
-            something=n))
-    return out
-
-rule merge_all:  # For footprint_annotation
-    input:
-        files = lambda wildcards: get_all_files(wildcards, config)
-    output:
-        'output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.all.bed.gz'
-    shell:
-        'bedtools merge -i <(bedtools sort -i <(zcat {input.files})) | gzip > {output[0]}'
+# rule report_score_rmd:
+#     input:
+#         'report/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.computed_score.gz'
+#     output
+#         temp('report/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.computed_score.Rmd')
+#     params:
+#         calculator = lambda wildcards: config[wildcards.input2score_method]['methods'][wildcards.method]['calculator'],
+#         filterr = lambda wildcards: config[wildcards.input2score_method]['methods'][wildcards.method]['filter'],
+#         param = lambda wildcards: config[wildcards.input2score_method]['methods'][wildcards.method]['param']
+#     run:
+#         rmd = '''
+# '''.format()
+#         o = open(output[0], 'w')
+#         o.write(rmd)
+#         o.close()
+#
+# rule score2rawbed:
+#     input:
+#         '../input2score-{input2score_method}/scores/{bed}/{model_tag}/chunk_{i}.{something}.score.gz'
+#     output:
+#         temp('bed/input2score-{input2score_method}/{bed}/{model_tag}/{method}/chunk_{i}.{something}.raw.bed.gz')
+#     params:
+#         calculator = lambda wildcards: config[wildcards.input2score_method]['methods'][wildcards.method]['calculator'],
+#         filterr = lambda wildcards: config[wildcards.input2score_method]['methods'][wildcards.method]['filter'],
+#         param = lambda wildcards: config[wildcards.input2score_method]['methods'][wildcards.method]['param']
+#     shell:
+#         'python scripts/score2rawbed.py --input {input[0]} \
+#         --output {output[0]} \
+#         --calculator {params.calculator} \
+#         --filter {params.filterr} \
+#         --param {params.param}'
+#
+# rule rawbed2bed:
+#     input:
+#         'bed/input2score-{input2score_method}/{bed}/{model_tag}/{method}/chunk_{i}.{something}.raw.bed.gz'
+#     output:
+#         temp('bed/input2score-{input2score_method}/{bed}/{model_tag}/{method}/chunk_{i}.{something}.cleaned.bed.gz')
+#     shell:
+#         'bedtools merge -i <(zcat {input[0]}) | gzip > {output[0]}'
+#
+# rule merge:
+#     input:
+#         files = lambda wildcards: [ 'bed/input2score-{input2score_method}/{bed}/{model_tag}/{method}/chunk_{i}.{something}.cleaned.bed.gz'.format(i=i, model_tag=wildcards.model_tag, bed=wildcards.bed, something=wildcards.something, input2score_method=wildcards.input2score_method, method=wildcards.method) for i in range(config[wildcards.bed]['number_of_chunk']) ]
+#     output:
+#         'output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.bed.gz'
+#     shell:
+#         'bedtools sort -i <(zcat {input.files}) | gzip > {output[0]}'
+#
+# def get_all_files(wildcards, config):
+#     out = []
+#     for n in config[wildcards.input2score_method][config[wildcards.input2score_method]['model_tag']].keys():
+#         out.append('output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.bed.gz'.format(
+#             input2score_method=wildcards.input2score_method,
+#             bed=wildcards.bed,
+#             model_tag=wildcards.model_tag,
+#             method=wildcards.method,
+#             something=n))
+#     return out
+#
+# rule merge_all:  # For footprint_annotation
+#     input:
+#         files = lambda wildcards: get_all_files(wildcards, config)
+#     output:
+#         'output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.all.bed.gz'
+#     shell:
+#         'bedtools merge -i <(bedtools sort -i <(zcat {input.files})) | gzip > {output[0]}'
