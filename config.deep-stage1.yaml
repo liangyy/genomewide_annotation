@@ -11,7 +11,9 @@ deep_variant:
   label:
     group_name: 'label'
     entry:
-      E081: 1
+      E081: 
+        idx: 1
+        region: '/project2/xinhe/yanyul/deep_variant/yanyu/deep_brain/data/E082-DNase.macs2.narrowPeak.sorted.intersect'
   path_to_annotation: '/project2/xinhe/yanyul/deep_variant/nick/DeepVariantPrediction'
   methods:
     log_odds_ratio:

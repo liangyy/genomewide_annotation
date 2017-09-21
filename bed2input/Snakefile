@@ -38,7 +38,7 @@ rule merge_overlap:
 
 rule intersect_deep_variant:
     input:
-        lambda wildcards: config['deep_variant']['label']['entry'][wildcards.label],
+        lambda wildcards: config['deep_variant']['label']['entry'][wildcards.label]['region'],
         'merged/{bed}.merged.bed'
     output:
         'merged/{bed}.merged.{model_tag}.{label}.deep_variant.bed'
