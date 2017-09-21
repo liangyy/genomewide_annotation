@@ -45,44 +45,57 @@ rule intersect_deep_variant:
     shell:
         'bedtools intersect -a {input[1]} -b {input[0]} > {output[0]}'
 
+rule split_deep_variant:
+    input:
+        'merged/{bed}.merged.{model_tag}.{label}.deep_variant.bed'
+    params:
+        nchunk = lambda wildcards: config['deep_variant']['number_of_chunk'],
+        outdir = lambda wildcards: 'chunks/{bed}/'.format(bed = wildcards.bed),
+        prefix = lambda wildcards: '{model_tag}.{label}'.format(model_tag = wildcards.model_tag, label = wildcards.label)
+    output:
+        [ 'chunks/{{bed}}/{{model_tag}}.{{label}}.chunk_{i}.raw'.format(i=i) for i in range(config['deep_variant']['number_of_chunk']) ]
+    shell:
+        'python scripts/split.py --input {input[0]} --nchunk {params.nchunk} --outdir {params.outdir} --prefix {params.prefix}'
+
 rule split:
     input:
         'merged/{bed}.merged.{model_tag}.{label}.deep_variant.bed'
     params:
         nchunk = lambda wildcards: config[wildcards.bed]['number_of_chunk'],
-        outdir = lambda wildcards: 'chunks/{bed}/'
+        outdir = lambda wildcards: 'chunks/{bed}/'.format(bed = wildcards.bed),
+        prefix = 'naive'
     output:
-        [ 'chunks/{{bed}}/{{model_tag}}.{{label}}.chunk_{i}.raw'.format(i=i) for i in range(config[config['name']]['number_of_chunk']) ]
+        [ 'chunks/{{bed}}/naive.chunk_{i}.raw'.format(i=i) for i in range(config[config['name']]['number_of_chunk']) ]
     shell:
-        'python scripts/split.py --input {input[0]} --nchunk {params.nchunk} --outdir {params.outdir}'
+        'python scripts/split.py --input {input[0]} --nchunk {params.nchunk} --outdir {params.outdir} --prefix {params.prefix}'
 
 rule prepare_input_getseq:
     input:
-        'chunks/{bed}/{model_tag}.{label}.chunk_{i}.raw'
+        'chunks/{bed}/{something}.chunk_{i}.raw'
     params:
         genome = config['genome_assembly']['fasta']
     output:
-        temp('chunks/{bed}/{model_tag}.{label}.chunk_{i}.tab')
+        temp('chunks/{bed}//{something}.chunk_{i}.tab')
     shell:
         'bedtools getfasta -fi {params.genome} -bed {input[0]} -fo {output[0]} -tab'
 
 rule prepare_input_compress:
     input:
-        'chunks/{bed}/{model_tag}.{label}.chunk_{i}.tab'
+        'chunks/{bed}//{something}.chunk_{i}.tab'
     output:
-        temp('chunks/{bed}/{model_tag}.{label}.chunk_{i}.tab.gz')
+        temp('chunks/{bed}//{something}.chunk_{i}.tab.gz')
     shell:
         'gzip {input[0]}'
 
 rule prepare_input_geninput:
     input:
-        seq = 'chunks/{bed}/{model_tag}.{label}.chunk_{i}.tab.gz'
+        seq = 'chunks/{bed}//{something}.chunk_{i}.tab.gz'
     params:
         script = lambda wildcards: config[wildcards.bed]['prepare_input_script']
     log:
-        'log/{bed}_chunk_{i}.log'
+        'log/{bed}_{something}_chunk_{i}.log'
     output:
-        good = 'chunks/{bed}/{model_tag}.{label}.chunk_{i}.input.gz',
-        bad = 'chunks/{bed}/{model_tag}.{label}.chunk_{i}.bad.input'
+        good = 'chunks/{bed}/{something}.chunk_{i}.input.gz',
+        bad = 'chunks/{bed}/{something}.chunk_{i}.bad.input'
     shell:
         'python scripts/{params.script} --input_seq {input.seq} --log {log} --exclude {output.bad} | gzip > {output.good}'
