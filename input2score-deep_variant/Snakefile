@@ -31,7 +31,7 @@ def label_string(label):
     white = '  '
     string = white + label['group_name'] + ':'
     for i in label['entry'].keys():
-        string = string + '\n{white}{white}{name}: {idx}'.format(white=white, name=i, idx=label['entry'][i])
+        string = string + '\n{white}{white}{name}: {idx}'.format(white=white, name=i, idx=label['entry'][i]['idx'])
     return string
 
 rule gen_config:
@@ -131,7 +131,7 @@ rule output2score:
         [ 'scores/{{bed}}/{{model_tag}}/chunk_{{i}}.{feature}.score.gz'.format(feature=feature) for feature in config['deep_variant']['label']['entry'].keys() ]
     params:
         labels = [ feature for feature in config['deep_variant']['label']['entry'].keys() ],
-        idxs = [ config['deep_variant']['label']['entry'][feature] for feature in config['deep_variant']['label']['entry'].keys() ],
+        idxs = [ config['deep_variant']['label']['entry'][feature]['idx'] for feature in config['deep_variant']['label']['entry'].keys() ],
         prefix = 'scores/{bed}/{model_tag}/chunk_{i}'
     shell:
         'python scripts/output2score.py --input_passed {input.passed}  --input_allele1 {input.a1} --input_allele2 {input.a2} --out_prefix {params.prefix} --labels {params.labels} --idxs {params.idxs}'
