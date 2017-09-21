@@ -1,0 +1,28 @@
+# This is a light module to track preprocess step
+# here the only functionality is to take the intersection of two regions
+# CAUTION: annotation BED should have no overlapping intervals
+
+rule clean_annotate:
+    input:
+        lambda wildcards: config['annotations'][wildcard.annotation_tag]
+    output:
+        'cleaned/{annotation_tag}.cleaned.bed'
+    shell:
+        'bedtools merge -i <(bedtools sort -i {input[0]}) -c 4,5 -o collapse,collapse > {output[0]}'
+
+rule clean_region:
+    input:
+        lambda wildcards: config['region_of_interest'][wildcards.region_tag]
+    output:
+        'cleaned/{region_tag}.cleaned.bed'
+    shell:
+        'bedtools merge -i <(bedtools sort -i {input[0]}) -c 4,5 -o collapse,collapse > {output[0]}'
+
+rule intersect:
+    input:
+        'cleaned/{annotation_tag}.cleaned.bed',
+        'cleaned/{region_tag}.cleaned.bed'
+    output:
+        'intersect/{region_tag}__{annotation_tag}.bed'
+    shell:
+        'bedtools intersect -a {input[1]} -b {input[0]} > {output[0]}'
