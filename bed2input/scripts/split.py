@@ -5,7 +5,7 @@ parser = argparse.ArgumentParser(prog='split.py', description='''
 parser.add_argument('--input')
 parser.add_argument('--nchunk', type=int)
 parser.add_argument('--outdir')
-parser.add_argument('--prefix')
+# parser.add_argument('--prefix')
 args = parser.parse_args()
 
 import sys
@@ -26,7 +26,7 @@ with open(args.input, 'r') as lines:
         # print(l)
         line_counter += 1
         if line_counter >= size and file_counter < args.nchunk:
-            o_name = '{outdir}/{prefix}.chunk_{i}.raw'.format(outdir=args.outdir, i=file_counter, prefix = args.prefix)
+            o_name = '{outdir}/chunk_{i}.raw'.format(outdir=args.outdir, i=file_counter)  # , prefix = args.prefix)
             file_counter += 1
             o.close()
             o = open(o_name, 'w')
