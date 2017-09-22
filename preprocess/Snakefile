@@ -4,11 +4,11 @@
 
 rule clean_annotate:
     input:
-        lambda wildcards: config['annotations'][wildcard.annotation_tag]
+        lambda wildcards: config['annotations'][wildcards.annotation_tag]
     output:
         'cleaned/{annotation_tag}.cleaned.bed'
     shell:
-        'bedtools merge -i <(bedtools sort -i {input[0]}) -c 4,5 -o collapse,collapse > {output[0]}'
+        'bedtools merge -i <(bedtools sort -i {input[0]}) -c 4 -o collapse > {output[0]}'
 
 rule clean_region:
     input:

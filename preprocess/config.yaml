@@ -1,5 +1,5 @@
 annotations:
-  E081: 'something_here'
-  NoonanRoadmap: 'something_here'
+  E081: '/project2/xinhe/yanyul/deep_variant/yanyu/deep_brain/data/E081-DNase.macs2.narrowPeak.sorted'
+  NoonanRoadmap: '/project2/xinhe/yanyul/deep_variant/yanyu/deep_brain/data/Noonan_brain_roadmap_union.bed.sorted'
 region_of_interest:
-  promoter_upstream_downstream_1kb: 'something_here'
+  promoter_upstream_downstream_1kb: '../data/refseq_id_promoter_1kb_upstream_downstream_pair_table.txt'

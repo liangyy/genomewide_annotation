@@ -1,8 +1,8 @@
-promoter_upstream_downstream_1kb:
-  path: '/project2/xinhe/yanyul/repo/genomewide_annotation/data/refseq_id_promoter_1kb_upstream_downstream_pair_table.txt'
-  number_of_chunk: 10
+promoter_upstream_downstream_1kb_NoonanRoadmap:
+  path: '/project2/xinhe/yanyul/repo/genomewide_annotation/preprocess/intersect/promoter_upstream_downstream_1kb__NoonanRoadmap.bed'
+  number_of_chunk: 55
   prepare_input_script: 'prepare_deep_variant.py'
-name: 'promoter_upstream_downstream_1kb'
+name: 'promoter_upstream_downstream_1kb_NoonanRoadmap'
 deep_variant:
   model_tag: 'deepsea-noonan-roadmap'
   deepsea-noonan-roadmap:
