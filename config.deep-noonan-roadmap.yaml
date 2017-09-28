@@ -12,7 +12,15 @@ deep_variant:
     group_name: 'label'
     entry:
       NoonanRoadmap: 1
-  path_to_annotation: '/project2/xinhe/yanyul/deep_variant/nick/DeepVariantPrediction'
+  path_to_annotation: '/scratch/midway2/xinhe/DeepVariantPrediction/'
+  methods:
+    log_odds_ratio:
+      calculator: 'log_odds_ratio'
+footprint_annotation:
+  model_tag: 'No_model'
+  No_model:
+    No_label: ''
+  path_to_annotation: ''
   methods:
     log_odds_ratio:
       calculator: 'log_odds_ratio'

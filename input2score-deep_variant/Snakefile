@@ -67,6 +67,7 @@ performance:
     params: 'some other input here'
 bed_list: ''
 cadd: ''
+working_dir: '{wd}'
 '''.format(taskname=wildcards.bed,
 i=wildcards.i,
 label_string=params.label_string,
@@ -75,7 +76,8 @@ model_path=config['deep_variant'][wildcards.model_tag]['path'],
 fasta=config['genome_assembly']['fasta'],
 size=config['genome_assembly']['size'],
 input_name=input_name,
-snakemake_dir=params.snakemake_dir)
+snakemake_dir=params.snakemake_dir,
+wd=config['deep_variant']['path_to_annotation'])
         o = open(output[0], 'w')
         o.write(config_str)
         o.close()
@@ -103,7 +105,7 @@ cd /project2/xinhe/yanyul
 source setup.sh
 source activate deepvarpred_test
 # module load cuda/7.5 # load cuda dependency for theano to run on GPU. Now we use the default cuda library on RCC (v4.0)
-cd deep_variant/nick/DeepVariantPrediction
+cd {working_dir}
 
 # snakemake --unlock sbatch/{model_name}.{bed}-chunk-{i}.allele1.sbatch sbatch/{model_name}.{bed}-chunk-{i}.allele2.sbatch --configfile {snakemake_dir}/input2score-deep_variant/{config_yaml}
 # snakemake sbatch/{model_name}.{bed}-chunk-{i}.allele1.sbatch sbatch/{model_name}.{bed}-chunk-{i}.allele2.sbatch --configfile {snakemake_dir}/input2score-deep_variant/{config_yaml} --rerun-incomplete
@@ -117,7 +119,8 @@ sbatch {model_name}.{bed}-chunk-{i}.allele2.sbatch
            model_tag=wildcards.model_tag,
            config_yaml=input[1],
            snakemake_dir=config['snakemake_dir'],
-           model_name=config['deep_variant'][wildcards.model_tag]['name'])
+           model_name=config['deep_variant'][wildcards.model_tag]['name'],
+           working_dir = config['deep_variant']['path_to_annotation'])
         o = open(output[0], 'w')
         o.write(sbatch)
         o.close()
