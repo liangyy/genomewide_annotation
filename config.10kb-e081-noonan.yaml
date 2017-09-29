@@ -1,0 +1,32 @@
+promoter_upstream_downstream_10kb:
+  path: '/project2/xinhe/yanyul/repo/genomewide_annotation/data/refseq_id_promoter_10kb_upstream_downstream_pair_table.txt'
+  number_of_chunk: 1000
+  prepare_input_script: 'prepare_deep_variant.py'
+name: 'promoter_upstream_downstream_10kb'
+deep_variant:
+  model_tag: 'deepsea-stage1'
+  deepsea-stage1:
+    path: '/project2/xinhe/yanyul/deep_variant/yanyu/deep_brain/my_train/'
+    name: 'keras_deepsea_with_040417_2_42_head_copy'
+  label:
+    group_name: 'label'
+    entry:
+      E081: 1
+      Noonan: 4
+  path_to_annotation: '/scratch/midway2/xinhe/DeepVariantPrediction/'
+  methods:
+    log_odds_ratio:
+      calculator: 'log_odds_ratio'
+footprint_annotation:
+  model_tag: 'No_model'
+  No_model:
+    No_label: ''
+  path_to_annotation: ''
+  methods:
+    log_odds_ratio:
+      calculator: 'log_odds_ratio'
+genome_assembly:
+  fasta: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.fa'
+  size: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.chrom.sizes'
+snakemake_dir: '/scratch/midway2/xinhe/genomewide_annotation/'
+
