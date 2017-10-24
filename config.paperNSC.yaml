@@ -1,0 +1,33 @@
+promoter_upstream_downstream_1kb:
+  path: '/project2/xinhe/yanyul/repo/genomewide_annotation/data/refseq_id_promoter_1kb_upstream_downstream_pair_table.txt'
+  number_of_chunk: 100
+  prepare_input_script: 'prepare_deep_variant.py'
+name: 'promoter_upstream_downstream_1kb'
+deep_variant:
+  model_tag: 'paperNSC'
+  paperNSC:
+    path: '/project2/xinhe/yanyul/repo/deep_variant/train_deepsea/model/'
+    name: 'DeepSEA-paperNSC_logistic.best_copy'
+  label:
+    group_name: 'label'
+    entry:
+      d27: 1
+      d41-1: 2
+      d41-2: 3
+  path_to_annotation: '/project2/xinhe/yanyul/scratch/DeepVariantPrediction/'
+  methods:
+    log_odds_ratio:
+      calculator: 'log_odds_ratio'
+footprint_annotation:
+  model_tag: 'No_model'
+  No_model:
+    No_label: ''
+  path_to_annotation: ''
+  methods:
+    log_odds_ratio:
+      calculator: 'log_odds_ratio'
+genome_assembly:
+  fasta: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.fa'
+  size: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.chrom.sizes'
+snakemake_dir: '/project2/xinhe/yanyul/scratch/genomewide_annotation/'
+
