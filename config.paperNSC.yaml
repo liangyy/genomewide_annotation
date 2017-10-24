@@ -19,15 +19,16 @@ deep_variant:
     log_odds_ratio:
       calculator: 'log_odds_ratio'
 footprint_annotation:
-  model_tag: 'No_model'
-  No_model:
-    No_label: ''
-  path_to_annotation: ''
+  model_tag: 'paperNSC'
+  paperNSC:
+    d27: 'paperNSC_d27.combined.bed.gz'
+    d41-1: 'paperNeuron_d41_1.combined.bed.gz'
+    d41-2: 'paperNeuron_d41_1.combined.bed.gz'
+  path_to_annotation: '/project2/xinhe/yanyul/scratch/footprint_annotation/strategy2/combine_result/output/'
   methods:
     log_odds_ratio:
       calculator: 'log_odds_ratio'
 genome_assembly:
   fasta: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.fa'
   size: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.chrom.sizes'
-snakemake_dir: ''
-
+snakemake_dir: '/project2/xinhe/yanyul/scratch/genomewide_annotation/'
