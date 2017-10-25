@@ -52,10 +52,11 @@ rule prepare_config:
         'configs/{bed}/config.{model_tag}.chunk_{i}.yaml'
     params:
         home_dir = config['snakemake_dir'],
-        footprint_bed_str = lambda wildcards: get_footprint_bed_str(config['footprint_annotation'][wildcards.model_tag])
+        footprint_bed_str = lambda wildcards: get_footprint_bed_str(config['footprint_annotation'][wildcards.model_tag]),
+        include = config['footprint_annotation']['end_include']
     run:
         config = '''{footprint_bed_str}
-  end_include: 1 # 1 for include ; 0 for not include (in original input bed file)
+  end_include: '{end_include}' # 1 for include ; 0 for not include (in original input bed file)
   view: 'zcat'
 snp_list:
   {bed}-chunk-{i}:
@@ -70,7 +71,8 @@ genome: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.fa'
             bed=wildcards.bed,
             i=wildcards.i,
             snp_list=input[0],
-            home_dir=params.home_dir)
+            home_dir=params.home_dir,
+            end_include=params.include)
         o = open(output[0], 'w')
         o.write(config)
         o.close()

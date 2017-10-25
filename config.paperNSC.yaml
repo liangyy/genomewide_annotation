@@ -20,11 +20,12 @@ deep_variant:
       calculator: 'log_odds_ratio'
 footprint_annotation:
   model_tag: 'paperNSC'
+  end_include: '0'
   paperNSC:
-    d27: 'paperNSC_d27.combined.bed.gz'
-    d41-1: 'paperNeuron_d41_1.combined.bed.gz'
-    d41-2: 'paperNeuron_d41_1.combined.bed.gz'
-  path_to_annotation: '/project2/xinhe/yanyul/scratch/footprint_annotation/strategy2/combine_result/output/'
+    d27: '../strategy2/combine_result/output/paperNSC_d27.final.bed.gz.temp'
+    d41-1: '../strategy2/combine_result/output/paperNeuron_d41_1.final.bed.gz.temp'
+    d41-2: '../strategy2/combine_result/output/paperNeuron_d41_1.final.bed.gz.temp'
+  path_to_annotation: '/project2/xinhe/yanyul/scratch/footprint_annotation/strategy1/' # combine_result/output/'
   methods:
     log_odds_ratio:
       calculator: 'log_odds_ratio'
