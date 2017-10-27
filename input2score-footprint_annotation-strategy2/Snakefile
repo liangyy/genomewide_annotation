@@ -8,14 +8,14 @@ def step1_sbatchs(config):
     for i in range(config[config['name']]['number_of_chunk']):
         out.append('sbatch/{bed}/cal_prior_bind.{model_tag}.chunk_{i}.sbatch'.format(i=i,
         bed=config['name'],
-        model_tag=config['footprint_annotation']['model_tag']))
+        model_tag=config['footprint_annotation-strategy2']['model_tag']))
     return out
 
 def get_all_outputs(config):
     out = []
-    for f in config['footprint_annotation'][config['footprint_annotation']['model_tag']].keys():
+    for f in config['footprint_annotation-strategy2'][config['footprint_annotation-strategy2']['model_tag']].keys():
         out.append('scores/{bed}/{model}/merged.{footprint_bed}.score.gz'.format(footprint_bed=f,
-        model=config['footprint_annotation']['model_tag'],
+        model=config['footprint_annotation-strategy2']['model_tag'],
         bed=config['name']))
     return out
 
@@ -42,7 +42,7 @@ def get_footprint_bed_str(bed_list):
     white = '  '
     string = string + 'footprint_bed:'
     for i in bed_list.keys():
-        string = string + "\n{white}{name}: \npath: '{path}'\nname:'{data_name}'".format(white=white, name=i, path=bed_list[i], data_name=i)
+        string = string + "\n{white}{name}: \n    path: '{path}'\n    name: '{data_name}'".format(white=white, name=i, path=bed_list[i], data_name=i)
     return string
 
 rule prepare_config:
@@ -52,8 +52,10 @@ rule prepare_config:
         'configs/{bed}/config.{model_tag}.chunk_{i}.yaml'
     params:
         home_dir = config['snakemake_dir'],
-        footprint_bed_str = lambda wildcards: get_footprint_bed_str(config['footprint_annotation'][wildcards.model_tag]),
-        include = config['footprint_annotation']['end_include']
+        footprint_bed_str = lambda wildcards: get_footprint_bed_str(config['footprint_annotation-strategy2'][wildcards.model_tag]),
+        include = config['footprint_annotation-strategy2']['end_include'],
+        motif_dir = config['footprint_annotation-strategy2']['motif_folder'],
+        motif_str = config['footprint_annotation-strategy2']['motif_str']
     run:
         config = '''{footprint_bed_str}
   end_include: '{end_include}' # 1 for include ; 0 for not include (in original input bed file)
@@ -66,13 +68,16 @@ snp_list:
     snp_view_method: 'zcat'
     check_ref: '0'
 motif_folder: '{motif_folder}'
+model_str: '{motif_str}'
 genome: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.fa'
 '''.format(footprint_bed_str=params.footprint_bed_str,
             bed=wildcards.bed,
             i=wildcards.i,
             snp_list=input[0],
             home_dir=params.home_dir,
-            end_include=params.include)
+            end_include=params.include,
+            motif_folder=params.motif_dir,
+            motif_str=params.motif_str)
         o = open(output[0], 'w')
         o.write(config)
         o.close()
@@ -99,21 +104,21 @@ source activate deepvarpred_test
 # module load cuda/7.5 # load cuda dependency for theano to run on GPU. Now we use the default cuda library on RCC (v4.0)
 cd {path}
 
-snakemake --configfile {snakemake_dir}/input2score-footprint_annotation/{config_yaml} run_all_footprint --unlock
-snakemake --configfile {snakemake_dir}/input2score-footprint_annotation/{config_yaml} run_all_footprint --rerun-incomplete
+snakemake --configfile {snakemake_dir}/input2score-footprint_annotation-strategy2/{config_yaml} run_all_footprint --unlock
+snakemake --configfile {snakemake_dir}/input2score-footprint_annotation-strategy2/{config_yaml} run_all_footprint --rerun-incomplete
 '''.format(i=wildcards.i,
            bed=wildcards.bed,
            model_tag=wildcards.model_tag,
            config_yaml=input[1],
            snakemake_dir=config['snakemake_dir'],
-           path=config['footprint_annotation']['path_to_annotation'])
+           path=config['footprint_annotation-strategy2']['path_to_annotation'])
         o = open(output[0], 'w')
         o.write(sbatch)
         o.close()
 
 rule output2score:
     input:
-        lambda wildcards: '{path}/data/prior.{footprint_bed}.{bed}-chunk-{i}.tab.gz'.format(path=config['footprint_annotation']['path_to_annotation'], bed=wildcards.bed, i=wildcards.i, footprint_bed=wildcards.footprint_bed)
+        lambda wildcards: '{path}/data/prior.{footprint_bed}.{bed}-chunk-{i}.tab.gz'.format(path=config['footprint_annotation-strategy2']['path_to_annotation'], bed=wildcards.bed, i=wildcards.i, footprint_bed=wildcards.footprint_bed)
     output:
         'scores/{bed}/{model_tag}/chunk_{i}.{footprint_bed}.score.gz'
     shell:
