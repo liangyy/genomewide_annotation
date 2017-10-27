@@ -1,0 +1,128 @@
+# This module makes use of footprint_annotation at
+# https://github.com/liangyy/footprint_annotation
+# It generates the configfile and sbatch script which is ready to submit a job
+# on cluster
+
+def step1_sbatchs(config):
+    out = []
+    for i in range(config[config['name']]['number_of_chunk']):
+        out.append('sbatch/{bed}/cal_prior_bind.{model_tag}.chunk_{i}.sbatch'.format(i=i,
+        bed=config['name'],
+        model_tag=config['footprint_annotation']['model_tag']))
+    return out
+
+def get_all_outputs(config):
+    out = []
+    for f in config['footprint_annotation'][config['footprint_annotation']['model_tag']].keys():
+        out.append('scores/{bed}/{model}/merged.{footprint_bed}.score.gz'.format(footprint_bed=f,
+        model=config['footprint_annotation']['model_tag'],
+        bed=config['name']))
+    return out
+
+rule all:
+    input:
+        get_all_outputs(config)
+
+rule step1:
+    input:
+        step1_sbatchs(config)
+
+rule input_formatting:
+    input:
+        '../bed2input/chunks/{bed}/chunk_{i}.input.gz'
+    output:
+        'formatted_input/{bed}/chunk_{i}.finput.gz'
+    shell:
+        '''zcat {input[0]} | \
+        awk -F"\\t" '{{print $1"\\t"$2"\\t"$3-1"\\t"$4"\\t"$5"\\t""placeholder""\\t"NR}}' | \
+        gzip > {output[0]}'''
+
+def get_footprint_bed_str(bed_list):
+    string = ''
+    white = '  '
+    string = string + 'footprint_bed:'
+    for i in bed_list.keys():
+        string = string + "\n{white}{name}: \npath: '{path}'\nname:'{data_name}'".format(white=white, name=i, path=bed_list[i], data_name=i)
+    return string
+
+rule prepare_config:
+    input:
+        'formatted_input/{bed}/chunk_{i}.finput.gz'
+    output:
+        'configs/{bed}/config.{model_tag}.chunk_{i}.yaml'
+    params:
+        home_dir = config['snakemake_dir'],
+        footprint_bed_str = lambda wildcards: get_footprint_bed_str(config['footprint_annotation'][wildcards.model_tag]),
+        include = config['footprint_annotation']['end_include']
+    run:
+        config = '''{footprint_bed_str}
+  end_include: '{end_include}' # 1 for include ; 0 for not include (in original input bed file)
+  view: 'zcat'
+snp_list:
+  {bed}-chunk-{i}:
+    path: '{home_dir}/input2score-footprint_annotation-strategy2/{snp_list}'
+    ncol_of_snp_list: 6
+    read_first_line: ''
+    snp_view_method: 'zcat'
+    check_ref: '0'
+motif_folder: '{motif_folder}'
+genome: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.fa'
+'''.format(footprint_bed_str=params.footprint_bed_str,
+            bed=wildcards.bed,
+            i=wildcards.i,
+            snp_list=input[0],
+            home_dir=params.home_dir,
+            end_include=params.include)
+        o = open(output[0], 'w')
+        o.write(config)
+        o.close()
+
+rule prepare_sbatch:
+    input:
+        'formatted_input/{bed}/chunk_{i}.finput.gz',
+        'configs/{bed}/config.{model_tag}.chunk_{i}.yaml'
+    output:
+        'sbatch/{bed}/cal_prior_bind.{model_tag}.chunk_{i}.sbatch'
+    run:
+        sbatch = '''#!/bin/bash
+#SBATCH --job-name={i}-{bed}-{model_tag}.prior_bind
+#SBATCH --output={i}-{bed}-{model_tag}.prior_bind.out
+#SBATCH --error={i}-{bed}-{model_tag}.prior_bind.err
+#SBATCH --time=24:00:00
+#SBATCH --partition=broadwl
+#SBATCH --mem-per-cpu=50G
+#SBATCH --nodes=1
+
+cd /project2/xinhe/yanyul
+source setup.sh
+source activate deepvarpred_test
+# module load cuda/7.5 # load cuda dependency for theano to run on GPU. Now we use the default cuda library on RCC (v4.0)
+cd {path}
+
+snakemake --configfile {snakemake_dir}/input2score-footprint_annotation/{config_yaml} run_all_footprint --unlock
+snakemake --configfile {snakemake_dir}/input2score-footprint_annotation/{config_yaml} run_all_footprint --rerun-incomplete
+'''.format(i=wildcards.i,
+           bed=wildcards.bed,
+           model_tag=wildcards.model_tag,
+           config_yaml=input[1],
+           snakemake_dir=config['snakemake_dir'],
+           path=config['footprint_annotation']['path_to_annotation'])
+        o = open(output[0], 'w')
+        o.write(sbatch)
+        o.close()
+
+rule output2score:
+    input:
+        lambda wildcards: '{path}/data/prior.{footprint_bed}.{bed}-chunk-{i}.tab.gz'.format(path=config['footprint_annotation']['path_to_annotation'], bed=wildcards.bed, i=wildcards.i, footprint_bed=wildcards.footprint_bed)
+    output:
+        'scores/{bed}/{model_tag}/chunk_{i}.{footprint_bed}.score.gz'
+    shell:
+        'python scripts/output2score.py --input_score {input[0]} --output {output[0]}'
+
+rule merge_and_sort:
+    input:
+        files = lambda wildcards: [ 'scores/{bed}/{model_tag}/chunk_{i}.{footprint_bed}.score.gz'.format(i=i, model_tag=wildcards.model_tag, bed=wildcards.bed, footprint_bed=wildcards.footprint_bed) for i in range(config[wildcards.bed]['number_of_chunk']) ]
+    output:
+        'scores/{bed}/{model_tag}/merged.{footprint_bed}.score.gz'
+    shell:
+        'bedtools sort -i <(zcat {input.files}) | gzip > {output[0]}'
