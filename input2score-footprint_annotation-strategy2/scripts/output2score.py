@@ -19,7 +19,7 @@ if snvs.shape[0] == 0:
         header=False)
     sys.exit()
 
-snvs['logratioprior'] = snvs.apply(lambda x: ','.join([x['s1'], x['s2']]), axis=1)
+snvs['logratioprior'] = snvs.apply(lambda x: ','.join([str(x['s1']), str(x['s2'])]), axis=1)
 snvs['allele'] = snvs.apply(lambda x: ','.join([x['a1'], x['a2']]), axis=1)
 
 grouped = snvs.groupby(['chr', 'start', 'end', 'strand', 'motif'], sort=False)
