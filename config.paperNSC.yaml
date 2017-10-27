@@ -24,8 +24,20 @@ footprint_annotation:
   paperNSC:
     d27: '../strategy2/combine_result/output/paperNSC_d27.final.bed.gz.temp'
     d41-1: '../strategy2/combine_result/output/paperNeuron_d41_1.final.bed.gz.temp'
-    d41-2: '../strategy2/combine_result/output/paperNeuron_d41_1.final.bed.gz.temp'
+    d41-2: '../strategy2/combine_result/output/paperNeuron_d41_2.final.bed.gz.temp'
   path_to_annotation: '/project2/xinhe/yanyul/scratch/footprint_annotation/strategy1/' # combine_result/output/'
+  methods:
+    log_odds_ratio:
+      calculator: 'log_odds_ratio'
+footprint_annotation-strategy2:  # note that this module based completely on the output of strategy2
+  model_tag: 'paperNSC'
+  end_include: '0'
+  motif_folder: '../data/motif_in_meme/recalMotifs/'
+  paperNSC:  # note that the data name should match the one in strategy2 in order to find the trained model correctly
+    paperNSC_d27: '../combine_result/output/paperNSC_d27.final.bed.gz.temp'
+    paperNeuron_d41_1: '../combine_result/output/paperNeuron_d41_1.final.bed.gz.temp'
+    paperNeuron_d41_2: '../combine_result/output/paperNeuron_d41_2.final.bed.gz.temp'
+  path_to_annotation: '/project2/xinhe/yanyul/scratch/footprint_annotation/strategy2/annotation/' # combine_result/output/'
   methods:
     log_odds_ratio:
       calculator: 'log_odds_ratio'
