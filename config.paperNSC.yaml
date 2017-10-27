@@ -40,8 +40,8 @@ footprint_annotation-strategy2:  # note that this module based completely on the
     paperNeuron_d41_2: '../combine_result/output/paperNeuron_d41_2.final.bed.gz.temp'
   path_to_annotation: '/project2/xinhe/yanyul/scratch/footprint_annotation/strategy2/annotation/' # combine_result/output/'
   methods:
-    log_odds_ratio:
-      calculator: 'log_odds_ratio'
+    nothing:
+      calculator: 'nothing'
 genome_assembly:
   fasta: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.fa'
   size: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.chrom.sizes'
