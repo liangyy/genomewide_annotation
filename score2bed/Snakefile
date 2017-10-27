@@ -30,6 +30,17 @@ def get_deep_outputs(config):
                 bed=config['name']))
     return out
 
+def get_footprint_annotation_strategy2_outputs(config):
+    out = []
+    for f in config['footprint_annotation-strategy2']['label']['entry'].keys():
+        for m in config['deep_variant']['methods'].keys():
+            out.append('output/input2score-footprint_annotation-strategy2/{bed}/{model}/{method}/merged.{something}.allele-specific.gz'.format(
+                method=m,
+                something=f,
+                model=config['deep_variant']['model_tag'],
+                bed=config['name']))
+    return out
+
 rule all:
     input:
         get_all_outputs(config)
@@ -38,6 +49,9 @@ rule all_deep:
     input:
         get_deep_outputs(config)
 
+rule all_fp2:
+    input:
+        get_footprint_annotation_strategy2_outputs(config)
 
 rule get_allele_specific_output:
     input:
