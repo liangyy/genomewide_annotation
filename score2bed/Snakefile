@@ -32,13 +32,21 @@ def get_deep_outputs(config):
 
 def get_footprint_annotation_strategy2_outputs(config):
     out = []
-    for f in config['footprint_annotation-strategy2']['label']['entry'].keys():
-        for m in config['deep_variant']['methods'].keys():
+    for f in config['footprint_annotation-strategy2'][config['footprint_annotation-strategy2']['model_tag']].keys():
+        for m in config['footprint_annotation-strategy2']['methods'].keys():
             out.append('output/input2score-footprint_annotation-strategy2/{bed}/{model}/{method}/merged.{something}.allele-specific.gz'.format(
                 method=m,
                 something=f,
-                model=config['deep_variant']['model_tag'],
+                model=config['footprint_annotation-strategy2']['model_tag'],
                 bed=config['name']))
+
+    # for f in config['footprint_annotation-strategy2']['label']['entry'].keys():
+    #     for m in config['deep_variant']['methods'].keys():
+    #         out.append('output/input2score-footprint_annotation-strategy2/{bed}/{model}/{method}/merged.{something}.allele-specific.gz'.format(
+    #             method=m,
+    #             something=f,
+    #             model=config['deep_variant']['model_tag'],
+    #             bed=config['name']))
     return out
 
 rule all:
@@ -59,11 +67,13 @@ rule get_allele_specific_output:
     output:
         'output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.allele-specific.gz'
     params:
-        calculator = lambda wildcards: config[wildcards.input2score_method]['methods'][wildcards.method]['calculator']
+        calculator = lambda wildcards: config[wildcards.input2score_method]['methods'][wildcards.method]['calculator'],
+        extra_info = lambda wildcards: config[wildcards.input2score_method]['extra_info']
     shell:
         'python scripts/compute_score.py --input {input[0]} \
         --output {output[0]} \
-        --calculator {params.calculator}'
+        --calculator {params.calculator} \
+        --extra_info {params.extra_info}'
 
 # The following codes tend to apply filtering step to the computed scores but here we don't have to convert
 # allele specific information into binary one.

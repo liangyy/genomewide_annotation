@@ -42,7 +42,7 @@ class ScoreCalculater:
         for_return = []
         for i in scores:
             for_return.append(_logit(i) - _logit(ref_score))
-        return for_return
+        return for_return, ref_score
     def nothing(self, scores):
         scores = self.get_scores(scores)
         return scores
@@ -53,6 +53,13 @@ class ScoreCalculater:
         for i in scores:
             for_return.append(abs(i - ref_score))
         return for_return
+    def change(self, scores):
+        scores = self.get_scores(scores)
+        ref_score = scores.pop(0)
+        for_return = []
+        for i in scores:
+            for_return.append(i - ref_score)
+        return for_return, ref_score
         
 class Filter:
     def percentage_thresholding(self, all_scores, all_original_scores, percentage):

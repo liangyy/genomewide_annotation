@@ -6,6 +6,7 @@ parser = argparse.ArgumentParser(prog='compute_score.py', description='''
 parser.add_argument('--input')
 parser.add_argument('--output')
 parser.add_argument('--calculator')
+parser.add_argument('--extra_info')
 args = parser.parse_args()
 
 import sys
@@ -21,7 +22,10 @@ calculator_cls = my_python.ScoreCalculater()
 calculator = getattr(calculator_cls, args.calculator)
 all_scores = []
 # positions = []
-
+extra_col = None
+if args.extra_info != '-1':
+    extra_col = args.extra_info.split(',')
+    extra_col = [ int(i) for i in extra_col ]
 with gzip.open(args.input, 'r') as f:
     counter = 0
     for i in f:
@@ -38,12 +42,21 @@ with gzip.open(args.input, 'r') as f:
         scores = i[score_col]
         alleles = i[allele_col].strip().split(',')
         ref = alleles[0]
-
+        
+        extra_info = []
+        if extra_col is not None:
+            # position = i[:3]
+            # extra_info = []
+            for e in extra_col:
+                extra_info.append(i[e - 1])
+        
         position = i[:3]
 
-        this_scores = calculator(scores)
+        this_scores, ref_score = calculator(scores)
         for s in range(len(this_scores)):
-            this_line = position + [ref, alleles[s + 1], this_scores[s]]
+            # if extra_col:
+            this_line = position + [ref, alleles[s + 1], this_scores[s], ref_score] + extra_info
+            # this_line = position + [ref, alleles[s + 1], this_scores[s], ref_score]
             all_scores.append(this_line)
 
 all_scores = pd.DataFrame(all_scores)
