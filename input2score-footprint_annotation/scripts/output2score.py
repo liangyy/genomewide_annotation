@@ -15,7 +15,7 @@ import my_python
 import pandas as pd
 import numpy as np
 
-input_score = pd.read_table(args.input_score, header=0, usecols=[0, 3, 8, 9], dtype={'SNP.ID': np.int32, 'Motif.ID': str, 'LogRatioPrior.Ref': np.float64, 'LogRatioPrior.Alt': np.float64})
+input_score = pd.read_table(args.input_score, compression='gzip', header=0, usecols=[0, 3, 8, 9], dtype={'SNP.ID': np.int32, 'Motif.ID': str, 'LogRatioPrior.Ref': np.float64, 'LogRatioPrior.Alt': np.float64})
 
 if input_score.shape[0] == 0:
     temp = pd.DataFrame([])

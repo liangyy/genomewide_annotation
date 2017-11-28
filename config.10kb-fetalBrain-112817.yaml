@@ -1,0 +1,62 @@
+promoter_upstream_downstream_10kb:
+  path: '/project2/xinhe/yanyul/repo/genomewide_annotation/data/refseq_id_promoter_10kb_upstream_downstream_pair_table.txt'
+  number_of_chunk: 100
+  prepare_input_script: 'prepare_deep_variant.py'
+name: 'promoter_upstream_downstream_10kb'
+deep_variant:
+  model_tag: 'fetalBrain'
+  fetalBrain:
+    path: ''
+    name: ''
+  label:
+    group_name: ''
+    entry:
+      d27: 1
+      d41-1: 2
+      d41-2: 3
+  path_to_annotation: '/project2/xinhe/yanyul/scratch/DeepVariantPrediction/'
+  extra_info: '-1'
+  methods:
+    log_odds_ratio:
+      calculator: 'log_odds_ratio'
+footprint_annotation:
+  model_tag: 'fetalBrain'
+  end_include: '0'
+  fetalBrain:
+    SRX026914: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX026914.bed.gz'
+    SRX027076: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX027076.bed.gz'
+    SRX027083: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX027083.bed.gz'
+    SRX027085: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX027085.bed.gz'
+    SRX027086: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX027086.bed.gz'
+    SRX027089: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX027089.bed.gz'
+    SRX027091: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX027091.bed.gz'
+    SRX040380: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX040380.bed.gz'
+    SRX040395: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX040395.bed.gz'
+    SRX062364: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX062364.bed.gz'
+    SRX121276: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX121276.bed.gz'
+    SRX121277: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX121277.bed.gz'
+    SRX121278: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX121278.bed.gz'
+    SRX201815: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX201815.bed.gz'
+  path_to_annotation: '/project2/xinhe/yanyul/scratch/footprint_annotation/strategy1/' # combine_result/output/'
+  extra_info: '4'
+  methods:
+    change:
+      calculator: 'change'
+footprint_annotation-strategy2:  # note that this module based completely on the output of strategy2
+  model_tag: 'paperNSC'
+  end_include: '0'
+  motif_folder: '../data/motif_in_meme/recalMotifs/'
+  motif_str: '../model/recalMotifs/\{motif\}__\{data_name\}__window.200.rds'
+  paperNSC:  # note that the data name should match the one in strategy2 in order to find the trained model correctly
+    paperNSC_d27: '../combine_result/output/paperNSC_d27.final.bed.gz.temp'
+    paperNeuron_d41_1: '../combine_result/output/paperNeuron_d41_1.final.bed.gz.temp'
+    paperNeuron_d41_2: '../combine_result/output/paperNeuron_d41_2.final.bed.gz.temp'
+  path_to_annotation: '/project2/xinhe/yanyul/scratch/footprint_annotation/strategy2/annotation/' # combine_result/output/'
+  extra_info: '5'
+  methods:
+    change:
+      calculator: 'change'
+genome_assembly:
+  fasta: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.fa'
+  size: '/project2/xinhe/yanyul/databases/hg19_complete/hg19.chrom.sizes'
+snakemake_dir: '/project2/xinhe/yanyul/scratch/genomewide_annotation/'

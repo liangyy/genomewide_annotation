@@ -113,7 +113,7 @@ snakemake --configfile {snakemake_dir}/input2score-footprint_annotation/{config_
 
 rule output2score:
     input:
-        score = lambda wildcards: '{path}/data/output.{footprint_bed}.{bed}-chunk-{i}.bed'.format(path=config['footprint_annotation']['path_to_annotation'], bed=wildcards.bed, i=wildcards.i, footprint_bed=wildcards.footprint_bed),  # , bed=wildcards.bed, i=wildcards.i)
+        score = lambda wildcards: '{path}/data/prior.{footprint_bed}.{bed}-chunk-{i}.tab.gz'.format(path=config['footprint_annotation']['path_to_annotation'], bed=wildcards.bed, i=wildcards.i, footprint_bed=wildcards.footprint_bed),  # , bed=wildcards.bed, i=wildcards.i)
         snp = lambda wildcards: '{path}/data/footprint_snp.{footprint_bed}.{bed}-chunk-{i}.bed.gz'.format(path=config['footprint_annotation']['path_to_annotation'], bed=wildcards.bed, i=wildcards.i, footprint_bed=wildcards.footprint_bed)
     output:
         'scores/{bed}/{model_tag}/chunk_{i}.{footprint_bed}.score.gz'
@@ -122,7 +122,7 @@ rule output2score:
 
 rule merge_and_sort:
     input:
-        files = lambda wildcards: [ 'scores/{bed}/{model_tag}/chunk_{i}.{footprint_bed}.score.gz'.format(i=i, model_tag=wildcards.model_tag, bed=wildcards.bed, footprint_bed=wildcards.footprint_bed) for i in range(config[wildcards.bed]['number_of_chunk']) ]  
+        files = lambda wildcards: [ 'scores/{bed}/{model_tag}/chunk_{i}.{footprint_bed}.score.gz'.format(i=i, model_tag=wildcards.model_tag, bed=wildcards.bed, footprint_bed=wildcards.footprint_bed) for i in range(config[wildcards.bed]['number_of_chunk']) ]
     output:
         'scores/{bed}/{model_tag}/merged.{footprint_bed}.score.gz'
     shell:
