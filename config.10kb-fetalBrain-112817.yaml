@@ -21,7 +21,7 @@ deep_variant:
       calculator: 'log_odds_ratio'
 footprint_annotation:
   model_tag: 'fetalBrain'
-  end_include: '0'
+  end_include: '1'
   fetalBrain:
     SRX026914: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX026914.bed.gz'
     SRX027076: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX027076.bed.gz'
