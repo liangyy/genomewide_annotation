@@ -37,7 +37,7 @@ footprint_annotation:
     SRX121277: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX121277.bed.gz'
     SRX121278: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX121278.bed.gz'
     SRX201815: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX201815.bed.gz'
-  path_to_annotation: '/project2/xinhe/yanyul/scratch/footprint_annotation/strategy1/' # combine_result/output/'
+  path_to_annotation: '/project2/xinhe/yanyul/repo/footprint_annotation/strategy1/' # combine_result/output/'
   extra_info: '4'
   methods:
     change:
