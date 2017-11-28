@@ -2,7 +2,7 @@ promoter_upstream_downstream_10kb:
   path: '/project2/xinhe/yanyul/repo/genomewide_annotation/data/refseq_id_promoter_10kb_upstream_downstream_pair_table.txt'
   number_of_chunk: 100
   prepare_input_script: 'prepare_deep_variant.py'
-name: 'promoter_upstream_downstream_1kb'
+name: 'promoter_upstream_downstream_10kb'
 deep_variant:
   model_tag: 'paperNSC'
   paperNSC:
