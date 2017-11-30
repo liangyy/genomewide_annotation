@@ -43,16 +43,16 @@ input_snp = pd.read_table(args.input_snp, header=None, compression='gzip',
         'Motif.Start': np.int32,
         'Motif.End': np.int32},
     usecols=[0, 1, 2, 3, 4, 5, 9],
-    names=['Chr', 'Start', 'End', 'Allele1', 'Allele2', 'ID', 'Motif', 'Motif.Start', 'Motif.End'])
+    names=['Chr', 'Start', 'End', 'Allele1', 'Allele2', 'ID', 'Motif', 'Motif.Start'])
 input_snp['Motif.Start'] = input_snp['Motif.Start'] - 1
-input_snp['Motif.End'] = input_snp['Motif.End'] - 1
+# input_snp['Motif.End'] = input_snp['Motif.End'] - 1
 feature_a1 = input_score['LogRatioPrior.Ref']
 feature_a2 = input_score['LogRatioPrior.Alt']
 feature = [ ','.join([str(a), str(b)]) for (a, b) in zip(feature_a1, feature_a2) ]
 input_snp['LogRatioPrior'] = feature
 input_snp['Allele'] = input_snp.apply(lambda x: ','.join([x['Allele1'], x['Allele2']]), axis=1)
 
-grouped = input_snp.groupby(['Chr', 'Start', 'End', 'Motif', 'Motif.Start', 'Motif.End'], sort=False)
+grouped = input_snp.groupby(['Chr', 'Start', 'End', 'Motif', 'Motif.Start'], sort=False)
 feature_agg = grouped.agg({
     'Allele' : lambda x: ','.join(x),
     'LogRatioPrior' : lambda x: ','.join(x)

@@ -34,7 +34,7 @@ rule input_formatting:
         'formatted_input/{bed}/chunk_{i}.finput.gz'
     shell:
         '''zcat {input[0]} | \
-        awk -F"\\t" '{{print $1"\\t"$2"\\t"$3-1"\\t"$4"\\t"$5"\\t""placeholder""\\t"NR}}' | \
+        awk -F"\\t" '{{print $1"\\t"$2+1"\\t"$3"\\t"$4"\\t"$5"\\t""placeholder""\\t"NR}}' | \
         gzip > {output[0]}'''
 
 def get_footprint_bed_str(bed_list):
