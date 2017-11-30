@@ -19,6 +19,14 @@ def get_all_outputs(config):
         bed=config['name']))
     return out
 
+def get_report(config):
+    out = []
+    for f in config['footprint_annotation'][config['footprint_annotation']['model_tag']].keys():
+        out.append('report/{bed}/{model_tag}/consistency.{footprint_bed}.html'.format(footprint_bed=f,
+        model=config['footprint_annotation']['model_tag'],
+        bed=config['name']))
+    return out
+
 rule all:
     input:
         get_all_outputs(config)
@@ -26,6 +34,10 @@ rule all:
 rule step1:
     input:
         step1_sbatchs(config)
+
+rule report:
+    input:
+        get_report(config)
 
 rule input_formatting:
     input:
@@ -133,7 +145,7 @@ rule report_consistency:
         'scores/{bed}/{model_tag}/merged.{footprint_bed}.score.gz',
         config['footprint_annotation'][wildcards.model_tag]['path_to_annotation'] + '/' + config['footprint_annotation'][wildcards.model_tag][wildcards.footprint_bed]
     output:
-        'report/{bed}/{model_tag}/intersect.{footprint_bed}.bed.gz'
+        temp('report/{bed}/{model_tag}/intersect.{footprint_bed}.bed.gz')
     shell:
         '''bedtools intersect -a <(zcat {input[1]} | awk -F"\\t" -OFS "\\t" \{'print $1,$2,$3+1,$4,$13\}) \
             -b {input[0]} \
@@ -145,7 +157,7 @@ rule report_rmd:
     params:
         'report/{bed}/{model_tag}/intersect.{footprint_bed}.bed.gz'
     output:
-        'report/{bed}/{model_tag}/consistency.{footprint_bed}.rmd'
+        temp('report/{bed}/{model_tag}/consistency.{footprint_bed}.rmd')
     run:
         rmd = '''---
 title: "Consistency between strategy1 log odds ratio of prior and centisnp"
@@ -203,9 +215,9 @@ for (i in motifs){{
 
 rule report_html:
     input:
-        'report/consistency.{footprint_bed}.rmd',
+        'report/{bed}/{model_tag}/consistency.{footprint_bed}.rmd',
         lambda wildcards: get_all_data(wildcards.taskname, config)
     output:
-        'report/consistency.{footprint_bed}.html'
+        'report/{bed}/{model_tag}/consistency.{footprint_bed}.html'
     shell:
         '''Rscript -e "rmarkdown::render('{input[0]}')"'''
