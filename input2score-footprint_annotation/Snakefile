@@ -22,7 +22,7 @@ def get_all_outputs(config):
 def get_report(config):
     out = []
     for f in config['footprint_annotation'][config['footprint_annotation']['model_tag']].keys():
-        out.append('report/{bed}/{model_tag}/consistency.{footprint_bed}.html'.format(footprint_bed=f,
+        out.append('report/{bed}/{model}/consistency.{footprint_bed}.html'.format(footprint_bed=f,
         model=config['footprint_annotation']['model_tag'],
         bed=config['name']))
     return out
@@ -143,14 +143,14 @@ rule merge_and_sort:
 rule report_consistency:
     input:
         'scores/{bed}/{model_tag}/merged.{footprint_bed}.score.gz',
-        config['footprint_annotation'][wildcards.model_tag]['path_to_annotation'] + '/' + config['footprint_annotation'][wildcards.model_tag][wildcards.footprint_bed]
+        lambda wildcards: config['footprint_annotation']['path_to_annotation'] + '/' + config['footprint_annotation'][wildcards.model_tag][wildcards.footprint_bed]
     output:
         temp('report/{bed}/{model_tag}/intersect.{footprint_bed}.bed.gz')
     shell:
-        '''bedtools intersect -a <(zcat {input[1]} | awk -F"\\t" -OFS "\\t" \{'print $1,$2,$3+1,$4,$13\}) \
+        '''bedtools intersect -a <(zcat {input[1]} | awk -F"\\t" -v OFS="\\t" '{{print $1,$2,$3+1,$4,$13}}') \
             -b {input[0]} \
             -wa -wb | \
-            awk -F"\\t" -OFS "\\t" '$4 == $9 \{print\}' | \
+            awk -F"\\t" -v OFS="\\t" '$4 == $9 {{print}}' | \
             gzip > {output[0]}'''
 
 rule report_rmd:
@@ -172,7 +172,7 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 ---
 
 ```{{r setup}}
-knitr::opts_knit$set(root.dir = '../../../../')
+knitr::opts_knit$set(root.dir = '../../../')
 library(stringr)
 library(ggplot2)
 ```
@@ -180,7 +180,7 @@ library(ggplot2)
 # Load data
 
 ```{{r}}
-data <- read.table('{input}', sep = '\t', header = F)
+data <- read.table('{input}', sep = '\\t', header = F)
 strategy1 <- str_match(data$V11, '(.+),.+,.+,.+')
 strategy1 <- strategy1[, 2]
 class(strategy1) <- 'numeric'
@@ -216,7 +216,7 @@ for (i in motifs){{
 rule report_html:
     input:
         'report/{bed}/{model_tag}/consistency.{footprint_bed}.rmd',
-        lambda wildcards: get_all_data(wildcards.taskname, config)
+        'report/{bed}/{model_tag}/intersect.{footprint_bed}.bed.gz'
     output:
         'report/{bed}/{model_tag}/consistency.{footprint_bed}.html'
     shell:
