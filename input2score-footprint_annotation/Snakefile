@@ -127,3 +127,85 @@ rule merge_and_sort:
         'scores/{bed}/{model_tag}/merged.{footprint_bed}.score.gz'
     shell:
         'bedtools sort -i <(zcat {input.files}) | gzip > {output[0]}'
+
+rule report_consistency:
+    input:
+        'scores/{bed}/{model_tag}/merged.{footprint_bed}.score.gz',
+        config['footprint_annotation'][wildcards.model_tag]['path_to_annotation'] + '/' + config['footprint_annotation'][wildcards.model_tag][wildcards.footprint_bed]
+    output:
+        'report/{bed}/{model_tag}/intersect.{footprint_bed}.bed.gz'
+    shell:
+        '''bedtools intersect -a <(zcat {input[1]} | awk -F"\\t" -OFS "\\t" \{'print $1,$2,$3+1,$4,$13\}) \
+            -b {input[0]} \
+            -wa -wb | \
+            awk -F"\\t" -OFS "\\t" '$4 == $9 \{print\}' | \
+            gzip > {output[0]}'''
+
+rule report_rmd:
+    params:
+        'report/{bed}/{model_tag}/intersect.{footprint_bed}.bed.gz'
+    output:
+        'report/{bed}/{model_tag}/consistency.{footprint_bed}.rmd'
+    run:
+        rmd = '''---
+title: "Consistency between strategy1 log odds ratio of prior and centisnp"
+output:
+html_document:
+    number_sections: true
+    toc: true
+    toc_depth: 3
+    toc_float: true
+author: Yanyu Liang
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+---
+
+```{{r setup}}
+knitr::opts_knit$set(root.dir = '../../../../')
+library(stringr)
+library(ggplot2)
+```
+
+# Load data
+
+```{{r}}
+data <- read.table('{input}', sep = '\t', header = F)
+strategy1 <- str_match(data$V11, '(.+),.+,.+,.+')
+strategy1 <- strategy1[, 2]
+class(strategy1) <- 'numeric'
+data <- data.frame(strategy1 = strategy1, centisnp = V5, motif = V4)
+motifs <- unique(data$motif)
+```
+
+# Include all motifs
+
+```{{r}}
+ggplot(data) + geom_point(x = centisnp, y = strategy1) +
+    geom_abline(slope = 1, intercept = 0, color = 'red') +
+    ggtitle('All motifs')
+```
+
+```{{r}}
+for (i in motifs){{
+    data.sub <- data[data$motif == i, ]
+    cat("#", paste('Motif', i), "\\n")
+    cat("\\n")
+    ggplot(data.sub) + geom_point(x = centisnp, y = strategy1) +
+        geom_abline(slope = 1, intercept = 0, color = 'red') +
+        ggtitle('')
+    cat("\\n")
+    cat("\\n")
+}}
+```
+'''.format(input = params[0])
+        o = open(output[0], 'w')
+        o.write(rmd)
+        o.close()
+
+rule report_html:
+    input:
+        'report/consistency.{footprint_bed}.rmd',
+        lambda wildcards: get_all_data(wildcards.taskname, config)
+    output:
+        'report/consistency.{footprint_bed}.html'
+    shell:
+        '''Rscript -e "rmarkdown::render('{input[0]}')"'''
