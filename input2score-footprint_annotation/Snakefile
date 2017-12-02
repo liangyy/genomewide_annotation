@@ -183,9 +183,9 @@ library(dplyr)
 ```{{r}}
 data <- read.table('{input}', sep = '\\t', header = F)
 
-v11.good <- !is.na(str_match(data$V11, '[ATGC]')) 
+v11.good <- is.na(str_match(data$V11, '[ATGC]')) 
 v11.strategy1 <- str_match(data$V11, '(.+),.+,.+,.+')
-v12.good <- !is.na(str_match(data$V12, '[ATGC]'))
+v12.good <- is.na(str_match(data$V12, '[ATGC]'))
 v12.strategy1 <- str_match(data$V12, '(.+),.+,.+,.+')
 strategy1 <- v11.strategy1
 strategy1[v12.good, ] <- v12.strategy1[v12.good, ]  
@@ -205,7 +205,7 @@ ggplot(data) + geom_point(aes(x = centisnp, y = strategy1)) +
     ggtitle('All motifs')
 ```
 
-```{{r, result='asis'}}
+```{{r, results='asis'}}
 for (i in motifs){{
     data.sub <- data[data$motif == i, ]
     cat('\\n')
