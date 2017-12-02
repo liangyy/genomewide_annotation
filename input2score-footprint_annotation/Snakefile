@@ -147,9 +147,9 @@ rule report_consistency:
     output:
         temp('report/{bed}/{model_tag}/intersect.{footprint_bed}.bed.gz')
     shell:
-        '''bedtools intersect -a <(zcat {input[1]} | awk -F"\\t" -v OFS="\\t" '{{print $1,$2,$3+1,$4,$13}}') \
+        '''bedtools intersect -a <(zcat {input[1]} | awk -F"\\t" -v OFS="\\t" '{{print $1,$2,$3+1,$6,$4,$13}}') \
             -b {input[0]} \
-            -wa -wb | \
+            -s -wa -wb | \
             awk -F"\\t" -v OFS="\\t" '$4 == $9 {{print}}' | \
             gzip > {output[0]}'''
 
@@ -183,10 +183,10 @@ library(dplyr)
 ```{{r}}
 data <- read.table('{input}', sep = '\\t', header = F)
 
-v11.good <- is.na(str_match(data$V11, '[ATGC]')) 
-v11.strategy1 <- str_match(data$V11, '(.+),.+,.+,.+')
-v12.good <- is.na(str_match(data$V12, '[ATGC]'))
-v12.strategy1 <- str_match(data$V12, '(.+),.+,.+,.+')
+v11.good <- is.na(str_match(data$V13, '[ATGC]'))
+v11.strategy1 <- str_match(data$V13, '(.+),.+,.+,.+')
+v12.good <- is.na(str_match(data$V14, '[ATGC]'))
+v12.strategy1 <- str_match(data$V14, '(.+),.+,.+,.+')
 strategy1 <- v11.strategy1
 strategy1[v12.good, ] <- v12.strategy1[v12.good, ]  
 # strategy1 <- str_match(data$V12, '(.+),.+,.+,.+')
