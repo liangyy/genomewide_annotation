@@ -162,11 +162,11 @@ rule report_rmd:
         rmd = '''---
 title: "Consistency between strategy1 log odds ratio of prior and centisnp"
 output:
-html_document:
-    number_sections: true
-    toc: true
-    toc_depth: 3
-    toc_float: true
+    html_document:
+        number_sections: true
+        toc: true
+        toc_depth: 3
+        toc_float: true
 author: Yanyu Liang
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 ---
@@ -175,21 +175,25 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 knitr::opts_knit$set(root.dir = '../../../')
 library(stringr)
 library(ggplot2)
+library(dplyr)
 ```
 
 # Load data
 
 ```{{r}}
 data <- read.table('{input}', sep = '\\t', header = F)
-if(is.na(str_match(data$V11, '[ATGC]'))) {{
-  strategy1 <- str_match(data$V11, '(.+),.+,.+,.+')
-}} else if(is.na(str_match(data$V12, '[ATGC]'))) {{
-  strategy1 <- str_match(data$V12, '(.+),.+,.+,.+')
-}}
+
+v11.good <- !is.na(str_match(data$V11, '[ATGC]')) 
+v11.strategy1 <- str_match(data$V11, '(.+),.+,.+,.+')
+v12.good <- !is.na(str_match(data$V12, '[ATGC]'))
+v12.strategy1 <- str_match(data$V12, '(.+),.+,.+,.+')
+strategy1 <- v11.strategy1
+strategy1[v12.good, ] <- v12.strategy1[v12.good, ]  
 # strategy1 <- str_match(data$V12, '(.+),.+,.+,.+')
 strategy1 <- strategy1[, 2]
 class(strategy1) <- 'numeric'
-data <- data.frame(strategy1 = strategy1, centisnp = data$V5, motif = data$V4)
+data <- data.frame(strategy1 = strategy1, centisnp = data$V5, motif = data$V4, position = data$V2)
+data <- unique(data)
 motifs <- unique(data$motif)
 ```
 
@@ -204,6 +208,7 @@ ggplot(data) + geom_point(aes(x = centisnp, y = strategy1)) +
 ```{{r, result='asis'}}
 for (i in motifs){{
     data.sub <- data[data$motif == i, ]
+    cat('\\n')
     cat("#", paste('Motif', i), "\\n")
     cat("\\n")
     ggplot(data.sub) + geom_point(aes(x = centisnp, y = strategy1)) +
