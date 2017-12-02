@@ -9,7 +9,7 @@ args = parser.parse_args()
 import sys
 import pandas as pd
 
-snvs = pd.read_table(args.input_score, sep = '\t', compression = 'gzip', header = None, names = ['chr', 'start', 'end', 'a1', 'a2', 'strand', 's1', 's2', 'motif', 'motif.start', 'motif.end'])
+snvs = pd.read_table(args.input_score, sep = '\t', compression = 'gzip', header = None, names = ['chr', 'start', 'end', 'a1', 'a2', 'strand', 's1', 's2', 'motif', 'motif.start'])
 
 if snvs.shape[0] == 0:
     temp = pd.DataFrame([])
@@ -22,7 +22,7 @@ if snvs.shape[0] == 0:
 snvs['logratioprior'] = snvs.apply(lambda x: ','.join([str(x['s1']), str(x['s2'])]), axis=1)
 snvs['allele'] = snvs.apply(lambda x: ','.join([x['a1'], x['a2']]), axis=1)
 
-grouped = snvs.groupby(['chr', 'start', 'end', 'strand', 'motif', 'motif.start', 'motif.end'], sort=False)
+grouped = snvs.groupby(['chr', 'start', 'end', 'strand', 'motif', 'motif.start'], sort=False)
 feature_agg = grouped.agg({
     'allele' : lambda x: ','.join(x),
     'logratioprior' : lambda x: ','.join(x)

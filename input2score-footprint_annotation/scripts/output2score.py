@@ -40,10 +40,10 @@ input_snp = pd.read_table(args.input_snp, header=None, compression='gzip',
         'Allele2': str,
         'ID': np.int32,
         'Motif': str,
-        'Motif.Start': np.int32,
-        'Motif.End': np.int32},
-    usecols=[0, 1, 2, 3, 4, 5, 9],
-    names=['Chr', 'Start', 'End', 'Allele1', 'Allele2', 'ID', 'Motif', 'Motif.Start'])
+        'Motif.Start': np.int32},
+        # 'Motif.End': np.int32},
+    usecols=[0, 1, 2, 3, 4, 5, 7, 9],
+    names=['Chr', 'Start', 'End', 'Allele1', 'Allele2', 'ID', 'Motif.Start', 'Motif'])
 input_snp['Motif.Start'] = input_snp['Motif.Start'] - 1
 # input_snp['Motif.End'] = input_snp['Motif.End'] - 1
 feature_a1 = input_score['LogRatioPrior.Ref']

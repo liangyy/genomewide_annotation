@@ -46,7 +46,7 @@ rule input_formatting:
         'formatted_input/{bed}/chunk_{i}.finput.gz'
     shell:
         '''zcat {input[0]} | \
-        awk -F"\\t" '{{print $1"\\t"$2-1"\\t"$3"\\t"$4"\\t"$5"\\t""placeholder""\\t"NR}}' | \
+        awk -F"\\t" '{{print $1"\\t"$2+1"\\t"$3"\\t"$4"\\t"$5"\\t""placeholder""\\t"NR}}' | \
         gzip > {output[0]}'''
 
 def get_footprint_bed_str(bed_list):
@@ -181,27 +181,32 @@ library(ggplot2)
 
 ```{{r}}
 data <- read.table('{input}', sep = '\\t', header = F)
-strategy1 <- str_match(data$V11, '(.+),.+,.+,.+')
+if(is.na(str_match(data$V11, '[ATGC]'))) {{
+  strategy1 <- str_match(data$V11, '(.+),.+,.+,.+')
+}} else if(is.na(str_match(data$V12, '[ATGC]'))) {{
+  strategy1 <- str_match(data$V12, '(.+),.+,.+,.+')
+}}
+# strategy1 <- str_match(data$V12, '(.+),.+,.+,.+')
 strategy1 <- strategy1[, 2]
 class(strategy1) <- 'numeric'
-data <- data.frame(strategy1 = strategy1, centisnp = V5, motif = V4)
+data <- data.frame(strategy1 = strategy1, centisnp = data$V5, motif = data$V4)
 motifs <- unique(data$motif)
 ```
 
 # Include all motifs
 
 ```{{r}}
-ggplot(data) + geom_point(x = centisnp, y = strategy1) +
+ggplot(data) + geom_point(aes(x = centisnp, y = strategy1)) +
     geom_abline(slope = 1, intercept = 0, color = 'red') +
     ggtitle('All motifs')
 ```
 
-```{{r}}
+```{{r, result='asis'}}
 for (i in motifs){{
     data.sub <- data[data$motif == i, ]
     cat("#", paste('Motif', i), "\\n")
     cat("\\n")
-    ggplot(data.sub) + geom_point(x = centisnp, y = strategy1) +
+    ggplot(data.sub) + geom_point(aes(x = centisnp, y = strategy1)) +
         geom_abline(slope = 1, intercept = 0, color = 'red') +
         ggtitle('')
     cat("\\n")
