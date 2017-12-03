@@ -148,9 +148,9 @@ rule report_consistency:
         temp('report/{bed}/{model_tag}/intersect.{footprint_bed}.bed.gz')
     shell:
         '''bedtools intersect -a <(zcat {input[1]} | awk -F"\\t" -v OFS="\\t" '{{print $1,$2,$3+1,$4,".",$6,$13}}') \
-            -b <(zcat {input[0]} | awk -F"\\t" -v OFS="\\t" '{{print $1,$2,$3,$5,".",$4,$7,$8}}') \
+            -b <(zcat {input[0]} | awk -F"\\t" -v OFS="\\t" '{{print $1,$2,$3,$5,$6,$4,$7,$8}}') \
             -s -wa -wb | \
-            awk -F"\\t" -v OFS="\\t" '{{if ($4 == $11 && $6 == $13) {{print}}}}' | \
+            awk -F"\\t" -v OFS="\\t" '{{if ($4 == $11 && $6 == $13 && $2 == $12) {{print}}}}' | \
             gzip > {output[0]}'''
 
 rule report_rmd:
@@ -210,11 +210,10 @@ for (i in motifs){{
     data.sub <- data[data$motif == i, ]
     cat('\\n')
     cat("#", paste('Motif', i), "\\n")
-    cat("\\n")
-    ggplot(data.sub) + geom_point(aes(x = centisnp, y = strategy1)) +
-        geom_abline(slope = 1, intercept = 0, color = 'red') +
-        ggtitle('')
-    cat("\\n")
+    # cat("\\n")
+    print(ggplot(data.sub) + geom_point(aes(x = centisnp, y = strategy1)) +
+        geom_abline(slope = 1, intercept = 0, color = 'red'))
+    # cat("\\n")
     cat("\\n")
 }}
 ```
