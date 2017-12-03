@@ -19,6 +19,13 @@ def get_all_outputs(config):
         bed=config['name']))
     return out
 
+def get_all_corrected_outputs(config):
+    out = []
+    for f in config['footprint_annotation'][config['footprint_annotation']['model_tag']].keys():
+        out.append('scores/{bed}/{model}/merged.{footprint_bed}.corrected-score.gz'.format(footprint_bed=f,
+        model=config['footprint_annotation']['model_tag'],
+        bed=config['name']))
+
 def get_report(config):
     out = []
     for f in config['footprint_annotation'][config['footprint_annotation']['model_tag']].keys():
@@ -30,6 +37,10 @@ def get_report(config):
 rule all:
     input:
         get_all_outputs(config)
+
+rule all_correct:
+    input:
+        get_all_corrected_outputs(config)
 
 rule step1:
     input:
@@ -132,14 +143,6 @@ rule output2score:
     shell:
         'python scripts/output2score.py --input_score {input.score} --input_snp {input.snp} --output {output[0]}'
 
-rule merge_and_sort:
-    input:
-        files = lambda wildcards: [ 'scores/{bed}/{model_tag}/chunk_{i}.{footprint_bed}.score.gz'.format(i=i, model_tag=wildcards.model_tag, bed=wildcards.bed, footprint_bed=wildcards.footprint_bed) for i in range(config[wildcards.bed]['number_of_chunk']) ]
-    output:
-        'scores/{bed}/{model_tag}/merged.{footprint_bed}.score.gz'
-    shell:
-        'bedtools sort -i <(zcat {input.files}) | gzip > {output[0]}'
-
 rule report_consistency:
     input:
         'scores/{bed}/{model_tag}/merged.{footprint_bed}.score.gz',
@@ -188,7 +191,7 @@ v11.strategy1 <- str_match(data$V14, '(.+),.+,.+,.+')
 v12.good <- is.na(str_match(data$V15, '[ATGC]'))
 v12.strategy1 <- str_match(data$V15, '(.+),.+,.+,.+')
 strategy1 <- v11.strategy1
-strategy1[v12.good, ] <- v12.strategy1[v12.good, ]  
+strategy1[v12.good, ] <- v12.strategy1[v12.good, ]
 # strategy1 <- str_match(data$V12, '(.+),.+,.+,.+')
 strategy1 <- strategy1[, 2]
 class(strategy1) <- 'numeric'
@@ -230,3 +233,29 @@ rule report_html:
         'report/{bed}/{model_tag}/consistency.{footprint_bed}.html'
     shell:
         '''Rscript -e "rmarkdown::render('{input[0]}')"'''
+
+rule generate_reference_model:
+    input:
+        'report/{bed}/{model_tag}/intersect.{footprint_bed}.bed.gz'
+    output:
+        'report/{bed}/{model_tag}/consistency.{footprint_bed}.rds'
+    shell:
+        'Rscript generate_reference_model.R --reference {input[0]} --output {output[0]}'
+
+rule correct:
+    input:
+        'scores/{bed}/{model_tag}/chunk_{i}.{footprint_bed}.score.gz',
+        'report/{bed}/{model_tag}/consistency.{footprint_bed}.rds'
+    output:
+        'scores/{bed}/{model_tag}/chunk_{i}.{footprint_bed}.corrected-score.gz'
+    shell:
+        'Rscript correct_score.R --score {input[0]} --reference {input[1]} --output {output[0]}'
+
+
+rule merge_and_sort:
+    input:
+        files = lambda wildcards: [ 'scores/{bed}/{model_tag}/chunk_{i}.{footprint_bed}.{score_mode}.gz'.format(i=i, model_tag=wildcards.model_tag, bed=wildcards.bed, footprint_bed=wildcards.footprint_bed) for i in range(config[wildcards.bed]['number_of_chunk']) ]
+    output:
+        'scores/{bed}/{model_tag}/merged.{footprint_bed}.{score_mode}.gz'
+    shell:
+        'bedtools sort -i <(zcat {input.files}) | gzip > {output[0]}'
