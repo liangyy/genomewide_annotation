@@ -41,7 +41,7 @@ footprint_annotation-strategy2:  # note that this module based completely on the
     paperNeuron_d41_1: '../combine_result/output/paperNeuron_d41_1.final.bed.gz.temp'
     paperNeuron_d41_2: '../combine_result/output/paperNeuron_d41_2.final.bed.gz.temp'
   path_to_annotation: '/project2/xinhe/yanyul/scratch/footprint_annotation/strategy2/annotation/' # combine_result/output/'
-  extra_info: '5'
+  extra_info: '5,6,4'
   methods:
     change:
       calculator: 'change'

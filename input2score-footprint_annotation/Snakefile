@@ -147,10 +147,10 @@ rule report_consistency:
     output:
         temp('report/{bed}/{model_tag}/intersect.{footprint_bed}.bed.gz')
     shell:
-        '''bedtools intersect -a <(zcat {input[1]} | awk -F"\\t" -v OFS="\\t" '{{print $1,$2,$3+1,$6,$4,$13}}') \
-            -b {input[0]} \
+        '''bedtools intersect -a <(zcat {input[1]} | awk -F"\\t" -v OFS="\\t" '{{print $1,$2,$3+1,$4,".",$6,$13}}') \
+            -b <(zcat {input[0]} | awk -F"\\t" -v OFS="\\t" '{{print $1,$2,$3,$5,".",$4,$7,$8}}') \
             -s -wa -wb | \
-            awk -F"\\t" -v OFS="\\t" '$4 == $9 {{print}}' | \
+            awk -F"\\t" -v OFS="\\t" '{{if ($4 == $11 && $6 == $13) {{print}}}}' | \
             gzip > {output[0]}'''
 
 rule report_rmd:
@@ -183,16 +183,16 @@ library(dplyr)
 ```{{r}}
 data <- read.table('{input}', sep = '\\t', header = F)
 
-v11.good <- is.na(str_match(data$V13, '[ATGC]'))
-v11.strategy1 <- str_match(data$V13, '(.+),.+,.+,.+')
-v12.good <- is.na(str_match(data$V14, '[ATGC]'))
-v12.strategy1 <- str_match(data$V14, '(.+),.+,.+,.+')
+v11.good <- is.na(str_match(data$V14, '[ATGC]'))
+v11.strategy1 <- str_match(data$V14, '(.+),.+,.+,.+')
+v12.good <- is.na(str_match(data$V15, '[ATGC]'))
+v12.strategy1 <- str_match(data$V15, '(.+),.+,.+,.+')
 strategy1 <- v11.strategy1
 strategy1[v12.good, ] <- v12.strategy1[v12.good, ]  
 # strategy1 <- str_match(data$V12, '(.+),.+,.+,.+')
 strategy1 <- strategy1[, 2]
 class(strategy1) <- 'numeric'
-data <- data.frame(strategy1 = strategy1, centisnp = data$V5, motif = data$V4, position = data$V2)
+data <- data.frame(strategy1 = strategy1, centisnp = data$V7, motif = data$V4, position = data$V2, strand = data$V6)
 data <- unique(data)
 motifs <- unique(data$motif)
 ```

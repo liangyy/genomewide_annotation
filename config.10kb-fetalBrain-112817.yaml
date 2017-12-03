@@ -38,7 +38,7 @@ footprint_annotation:
     SRX121278: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX121278.bed.gz'
     SRX201815: '../footprintRegions/EpiUwRmapDNaseFetal.Brain.SRX201815.bed.gz'
   path_to_annotation: '/project2/xinhe/yanyul/repo/footprint_annotation/strategy1/' # combine_result/output/'
-  extra_info: '4'
+  extra_info: '5,6,4'
   methods:
     change:
       calculator: 'change'
