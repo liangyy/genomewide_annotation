@@ -15,7 +15,7 @@ opt <- parse_args(opt_parser)
 library(stringr)
 library(dplyr)
 
-data <- read.table('{input}', sep = '\\t', header = F)
+data <- read.table(opt$reference, sep = '\t', header = F)
 
 v11.good <- is.na(str_match(data$V14, '[ATGC]'))
 v11.strategy1 <- str_match(data$V14, '(.+),.+,.+,.+')
@@ -26,10 +26,6 @@ strategy1[v12.good, ] <- v12.strategy1[v12.good, ]
 # strategy1 <- str_match(data$V12, '(.+),.+,.+,.+')
 strategy1 <- strategy1[, 2]
 class(strategy1) <- 'numeric'
-data <- data.frame(strategy1 = strategy1, centisnp = data$V7, motif = data$V4, position = data$V2, strand = data$V6)
-data <- unique(data)
-motifs <- unique(data$motif)
-
 data <- data.frame(strategy1 = strategy1, centisnp = data$V7, motif = data$V4, position = data$V2, strand = data$V6)
 data <- unique(data)
 motifs <- unique(data$motif)

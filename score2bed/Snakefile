@@ -23,7 +23,7 @@ def get_deep_outputs(config):
     out = []
     for f in config['deep_variant']['label']['entry'].keys():
         for m in config['deep_variant']['methods'].keys():
-            out.append('output/input2score-deep_variant/{bed}/{model}/{method}/merged.{something}.allele-specific.gz'.format(
+            out.append('output/input2score-deep_variant/{bed}/{model}/{method}/merged.{something}.score-allele-specific.gz'.format(
                 method=m,
                 something=f,
                 model=config['deep_variant']['model_tag'],
@@ -34,7 +34,7 @@ def get_footprint_annotation_strategy2_outputs(config):
     out = []
     for f in config['footprint_annotation-strategy2'][config['footprint_annotation-strategy2']['model_tag']].keys():
         for m in config['footprint_annotation-strategy2']['methods'].keys():
-            out.append('output/input2score-footprint_annotation-strategy2/{bed}/{model}/{method}/merged.{something}.allele-specific.gz'.format(
+            out.append('output/input2score-footprint_annotation-strategy2/{bed}/{model}/{method}/merged.{something}.score-allele-specific.gz'.format(
                 method=m,
                 something=f,
                 model=config['footprint_annotation-strategy2']['model_tag'],
@@ -46,7 +46,7 @@ def get_footprint_annotation_outputs(config):
     out = []
     for f in config['footprint_annotation'][config['footprint_annotation']['model_tag']].keys():
         for m in config['footprint_annotation']['methods'].keys():
-            out.append('output/input2score-footprint_annotation/{bed}/{model}/{method}/merged.{something}.allele-specific.gz'.format(
+            out.append('output/input2score-footprint_annotation/{bed}/{model}/{method}/merged.{something}.corrected-score-allele-specific.gz'.format(
                 method=m,
                 something=f,
                 model=config['footprint_annotation']['model_tag'],
@@ -79,9 +79,9 @@ rule all_fp2:
 
 rule get_allele_specific_output:
     input:
-        '../input2score-{input2score_method}/scores/{bed}/{model_tag}/merged.{something}.score.gz'
+        '../input2score-{input2score_method}/scores/{bed}/{model_tag}/merged.{something}.{score_type}.gz'
     output:
-        'output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.allele-specific.gz'
+        'output/input2score-{input2score_method}/{bed}/{model_tag}/{method}/merged.{something}.{score_type}-allele-specific.gz'
     params:
         calculator = lambda wildcards: config[wildcards.input2score_method]['methods'][wildcards.method]['calculator'],
         extra_info = lambda wildcards: config[wildcards.input2score_method]['extra_info']

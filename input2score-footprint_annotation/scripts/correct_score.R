@@ -33,19 +33,21 @@ class(strategy1) <- 'numeric'
 corrected <- matrix(0, nrow = nrow(strategy1), ncol = 4)
 
 # load reference model
-loadRDS(opt$reference)
+model <- readRDS(opt$reference)
 for (i in names(model)) {
   model.sub <- model[[i]]
   ind.sub <- data$V5 == i
   strategy1.sub <- strategy1[ind.sub, ]
-  corrected.sub <- matrix(0, nrow = nrow(model.sub), ncol = 4)
-  for (j = 1 : 4){
+  corrected.sub <- matrix(0, nrow = nrow(strategy1.sub), ncol = 4)
+  for (j in 1 : 4){
     corrected.sub[, j] <- predict(model.sub, data.frame(strategy1 = strategy1.sub[, j]))
   }
   corrected[ind.sub, ] <- corrected.sub
 }
 
 corrected_str <- apply(corrected, 1, function(x) {paste(x, collapse = ',')})
+data[,'V7'] <- as.character(data[,'V7'])
+data[,'V8'] <- as.character(data[,'V8'])
 data[v11.good, 'V7'] <- corrected_str[v11.good]
 data[v12.good, 'V8'] <- corrected_str[v12.good]
 

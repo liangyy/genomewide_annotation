@@ -241,7 +241,7 @@ rule generate_reference_model:
     output:
         'report/{bed}/{model_tag}/consistency.{footprint_bed}.rds'
     shell:
-        'Rscript generate_reference_model.R --reference {input[0]} --output {output[0]}'
+        'Rscript scripts/generate_reference_model.R --reference {input[0]} --output {output[0]}'
 
 rule correct:
     input:
@@ -250,7 +250,7 @@ rule correct:
     output:
         'scores/{bed}/{model_tag}/chunk_{i}.{footprint_bed}.corrected-score.gz'
     shell:
-        'Rscript correct_score.R --score {input[0]} --reference {input[1]} --output {output[0]}'
+        'Rscript scripts/correct_score.R --score {input[0]} --reference {input[1]} --output {output[0]}'
 
 
 rule merge_and_sort:
